@@ -65,6 +65,9 @@ class AccelerometerSource(context: Context) {
         return collected
     }
 
+    /** Continuous raw readings while collected, e.g. for a live spirit level. */
+    fun readings(): Flow<Vec3> = samples().map { it.value }
+
     /** One simple-mode measurement: settle, collect a window, average and check stillness. */
     suspend fun measure(orientation: PhoneOrientation): WindowResult =
         analyzeWindow(collect(SETTLE_MS, WINDOW_MS), orientation)

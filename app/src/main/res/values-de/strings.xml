@@ -164,4 +164,27 @@
     <string name="base_vehicle_wheelbase">%1$s cm</string>
     <string name="base_vehicle_help">Herstellerangaben. Ausbauer ändern sie manchmal, vergleich sie daher mit deinen Fahrzeugpapieren.</string>
     <string name="base_vehicle_approximate">Die Spurweite dieses Basisfahrzeugs ist ein Näherungswert.</string>
+    <string name="tutorial">Anleitung</string>
+    <string name="tut_skip">Überspringen</string>
+    <string name="tut_next">Weiter</string>
+    <string name="tut_done">Los geht\'s</string>
+    <string name="tut_page">Seite %1$d von %2$d</string>
+    <string name="tut_welcome_title">Waagerecht in ein paar Schritten</string>
+    <string name="tut_welcome_body">LevelPitch misst mit deinem Handy, wie schief dein Wohnmobil oder Wohnwagen steht, und sagt dir, welche Keilstufe unter welches Rad gehört.</string>
+    <string name="tut_sensor_title">Dein Handy ist die Wasserwaage</string>
+    <string name="tut_sensor_body">Kipp dein Handy: Die Blase wandert zur höheren Seite. Die App liest diesen Sensor viel genauer als jede Blase, auf ein Zehntelgrad.</string>
+    <string name="tut_setup_title">Einmal einrichten</string>
+    <string name="tut_setup_body">Leg dein Fahrzeug und deine Auffahrkeile unter ⋮ › Fahrzeuge &amp; Auffahrkeile an. Wähl Basisfahrzeug und Auffahrkeilmodell, die Maße werden automatisch ausgefüllt.</string>
+    <string name="tut_spot_title">Immer derselbe Platz</string>
+    <string name="tut_spot_body">Such dir eine ebene Stelle im Fahrzeug, z. B. den Boden neben einem Schrank. Leg das Handy mit dem Display nach oben an eine gerade Kante, immer gleich herum. Liegt es leicht verdreht, zeigt es Neigung, die es nicht gibt.</string>
+    <string name="tut_calibrate_title">Einmal kalibrieren</string>
+    <string name="tut_calibrate_body">Stell das Fahrzeug waagerecht hin (mit einer Wasserwaage auf dem Boden prüfen), dann ⋮ › Kalibrierung › Nullpunkt setzen. Jetzt weiß die App, was an deinem Platz waagerecht heißt.</string>
+    <string name="tut_level_title">Auf jedem Stellplatz</string>
+    <string name="tut_level_body">Messen, Auffahrkeile unterlegen wie angezeigt, Auffahrkeile liegen tippen und erneut messen, bis Waagerecht erscheint. Steht ein Rad auf etwas anderem, tipp es im Bild an.</string>
+    <string name="tut_level_anim_plan">Stufe 2 empfohlen</string>
+    <string name="tut_level_anim_done">Auf dem Auffahrkeil</string>
+    <string name="tut_caravan_title">Wohnwagen Schritt für Schritt</string>
+    <string name="tut_caravan_body">Quer mit Auffahrkeilen, solange noch angekuppelt, dann abkuppeln, längs mit dem Bugrad und zum Schluss die Kurbelstützen. Die App führt dich durch jeden Schritt.</string>
+    <string name="tut_safety_title">Sicherheit zuerst</string>
+    <string name="tut_safety_body">Handbremse anziehen und Unterlegkeile anlegen, bevor du das Fahrzeug verlässt. Magst du erzählen, wie es lief? ⋮ › Messdaten teilen. Diese Anleitung findest du jederzeit im Menü.</string>
 </resources>

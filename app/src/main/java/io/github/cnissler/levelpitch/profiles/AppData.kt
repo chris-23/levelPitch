@@ -15,7 +15,11 @@ data class AppData(
     val activeVehicleId: String? = null,
     val activeEquipmentId: String? = null,
     val session: LevelSession? = null,
+    /** The first-start tutorial was finished or skipped. */
+    val tutorialSeen: Boolean = false,
 ) {
+    fun markTutorialSeen(): AppData = copy(tutorialSeen = true)
+
     val activeVehicle: VehicleProfile? get() = vehicles.find { it.id == activeVehicleId }
     val activeEquipment: EquipmentProfile? get() = equipment.find { it.id == activeEquipmentId }
 

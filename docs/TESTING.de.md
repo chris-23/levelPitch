@@ -11,19 +11,20 @@ wird.
 bevor du das Fahrzeug verlässt. Einen Wohnwagen nie mit den Kurbelstützen
 anheben.
 
-Die App folgt der Sprache deines Handys. Unter ⋮ → *Einstellungen* kannst
-du sie umstellen.
+Beim ersten Start zeigt die App eine kurze Anleitung zum Durchblättern.
+Du findest sie jederzeit unter ⋮ → *Anleitung*. Die App folgt der Sprache
+deines Handys; unter ⋮ → *Einstellungen* kannst du sie umstellen.
 
 ## 1. Einrichten (einmal, 5 Minuten)
 
-1. **Fahrzeug:** Menü ⋮ → *Fahrzeuge & Keile* → *Fahrzeug hinzufügen*.
+1. **Fahrzeug:** Menü ⋮ → *Fahrzeuge & Auffahrkeile* → *Fahrzeug hinzufügen*.
    - Wohnmobil: Basisfahrzeug (Fiat Ducato, Sprinter, …) und Radstand
      wählen, die Maße werden automatisch ausgefüllt. Wenn du Radstand und
      Spurweite genau kennst, trag sie ein.
    - Wohnwagen: die passende Größe wählen. Wer mag, misst die Spurweite
      (Reifenmitte zu Reifenmitte) und den Abstand von der Kupplungskugel
      zur Radnabe und trägt beides ein.
-2. **Keile:** *Keile hinzufügen*, dann dein Modell wählen oder die
+2. **Auffahrkeile:** *Auffahrkeile hinzufügen*, dann dein Modell wählen oder die
    Stufenhöhen eintragen. Für Heber, Luftkissen oder Keile ohne Stufen
    *Stufenlos* wählen und den maximalen Hub eintragen.
 3. **Messplatz:** Such dir eine ebene Stelle im Fahrzeug aus, die fest
@@ -47,8 +48,8 @@ einen Nullpunkt.
 ## 3. Auf jedem Stellplatz
 
 1. Handy auf den Messplatz, **Messen** tippen, 3 Sekunden nichts berühren.
-2. Tun, was die App sagt („Hinten links: Stufe 2“), dann **Keile liegen**
-   tippen.
+2. Tun, was die App sagt („Hinten links: Stufe 2“), dann **Auffahrkeile
+   liegen** tippen.
 3. **Erneut messen**, bis **Waagerecht** erscheint.
 4. Wohnwagen: Die App führt dich durch vier Schritte: quer ausrichten
    (noch angekuppelt), abkuppeln, Bugrad, Kurbelstützen.

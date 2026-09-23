@@ -273,8 +273,10 @@ the single zeroOffset.
 - **M4** ARCore session, ground detection, wheel tap + single-frame MobileSAM.
 - **M5** Per-wheel local ground plane + contact heights → recommendation.
 - **M6** AR wheel labels, evaluation logging, JSON export, analysis script.
-- **Later** Play Store readiness: onboarding, handling devices without
-  Depth, privacy/data-safety declarations. (English + German UI done:
+- **Later** Play Store readiness: handling devices without Depth,
+  privacy/data-safety declarations. (Onboarding done: an 8-page tutorial
+  with pixel illustrations, a live spirit level driven by the sensor and
+  an animated wedge, shown on first start and under ⋮ › Tutorial.) (English + German UI done:
   system language by default, switchable under Settings; German uses "du",
   Bugrad, Längs-/Querneigung.)
 

@@ -99,6 +99,13 @@ class AppDataTest {
     }
 
     @Test
+    fun tutorialIsUnseenUntilMarked() {
+        assertEquals(false, AppData().tutorialSeen)
+        assertEquals(true, base.markTutorialSeen().tutorialSeen)
+        assertEquals(base.vehicles, base.markTutorialSeen().vehicles)
+    }
+
+    @Test
     fun noSessionWithoutProfiles() {
         assertEquals(AppData(), AppData().recordMeasurement(m))
     }

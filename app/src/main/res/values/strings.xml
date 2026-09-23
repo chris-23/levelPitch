@@ -165,4 +165,27 @@
     <string name="base_vehicle_wheelbase">%1$s cm</string>
     <string name="base_vehicle_help">Manufacturer values. Converters sometimes change them, so compare with your vehicle papers.</string>
     <string name="base_vehicle_approximate">The track width of this base is approximate.</string>
+    <string name="tutorial">Tutorial</string>
+    <string name="tut_skip">Skip</string>
+    <string name="tut_next">Next</string>
+    <string name="tut_done">Let\'s go</string>
+    <string name="tut_page">Page %1$d of %2$d</string>
+    <string name="tut_welcome_title">Level in a few taps</string>
+    <string name="tut_welcome_body">LevelPitch uses your phone to measure how your motorhome or caravan leans, and tells you which wedge step goes under which wheel.</string>
+    <string name="tut_sensor_title">Your phone is the spirit level</string>
+    <string name="tut_sensor_body">Tilt your phone: the bubble floats to the high side. The app reads this sensor far more precisely than any bubble, to a tenth of a degree.</string>
+    <string name="tut_setup_title">Set up once</string>
+    <string name="tut_setup_body">Add your vehicle and your wedges under ⋮ › Vehicles &amp; wedges. Pick your base vehicle and wedge model, and the dimensions fill in by themselves.</string>
+    <string name="tut_spot_title">Same spot, every time</string>
+    <string name="tut_spot_body">Choose a flat spot inside, like the floor by a cupboard. Lay the phone screen-up against a straight edge, always the same way round. A phone lying slightly turned shows tilt that isn\'t there.</string>
+    <string name="tut_calibrate_title">Calibrate once</string>
+    <string name="tut_calibrate_body">Park level (check with a spirit level on the floor), then ⋮ › Calibration › Set zero. Now the app knows what level means at your spot.</string>
+    <string name="tut_level_title">At every pitch</string>
+    <string name="tut_level_body">Measure, put the wedges where the app says, tap Wedges placed and measure again, until it says Level. If a wheel stands on something else, tap it in the picture.</string>
+    <string name="tut_level_anim_plan">Step 2 recommended</string>
+    <string name="tut_level_anim_done">On the wedge</string>
+    <string name="tut_caravan_title">Caravans step by step</string>
+    <string name="tut_caravan_body">Side to side with wedges while still hitched, then unhitch, front to back with the jockey wheel, and finally the corner steadies. The app guides you through each step.</string>
+    <string name="tut_safety_title">Safety first</string>
+    <string name="tut_safety_body">Handbrake on and wheels chocked before you leave the vehicle. Want to share how it went? ⋮ › Share session data. You can find this tutorial again in the menu.</string>
 </resources>

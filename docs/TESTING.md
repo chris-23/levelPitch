@@ -9,8 +9,9 @@ fixed next.
 **Safety first:** handbrake on and wheels chocked before you leave the
 vehicle. Never lift a caravan with its corner steadies.
 
-The app follows your phone's language (English or German); ⋮ → *Settings*
-switches it. German guide: [TESTING.de.md](TESTING.de.md).
+On first start the app shows a short tutorial to swipe through; it is
+always in the menu under ⋮ → *Tutorial*. The app follows your phone's
+language (English or German); ⋮ → *Settings* switches it. German guide: [TESTING.de.md](TESTING.de.md).
 
 ## 1. Set up (once, 5 minutes)
 
