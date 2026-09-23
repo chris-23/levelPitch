@@ -35,7 +35,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.cnissler.levelpitch.R
 import io.github.cnissler.levelpitch.leveling.Caravan
 import io.github.cnissler.levelpitch.leveling.PhoneOrientation
-import io.github.cnissler.levelpitch.leveling.Wheel
 import io.github.cnissler.levelpitch.ui.HoldStill
 import io.github.cnissler.levelpitch.ui.RejectedResult
 import io.github.cnissler.levelpitch.ui.TiltLines
@@ -139,7 +138,7 @@ private fun LevelContent(state: LevelUiState, setup: Setup.Ready, vm: LevelViewM
     val showTargets = plan != null && !plan.isLevel && !plan.stale
     if (plan != null && showTargets) PlanCard(plan, setup, vm::placeRecommended)
 
-    WheelDiagram(
+    VehicleScene(
         vehicle = setup.vehicle,
         equipment = setup.equipment,
         current = state.wedgeState,
@@ -216,13 +215,6 @@ private fun changeText(change: WedgeChange, setup: Setup.Ready): String {
         change.fromStep == 0 -> stringResource(R.string.change_add, where, change.toStep, cm(mm))
         else -> stringResource(R.string.change_move, where, change.fromStep, change.toStep, cm(mm))
     }
-}
-
-@Composable
-private fun groupLabel(wheels: List<Wheel>): String = when {
-    wheels.size == 1 -> stringResource(wheels.single().label())
-    wheels.all { it == Wheel.FRONT_LEFT || it == Wheel.REAR_LEFT } -> stringResource(R.string.wheels_left)
-    else -> stringResource(R.string.wheels_right)
 }
 
 private fun PhoneOrientation.placement(): Int = when (this) {
