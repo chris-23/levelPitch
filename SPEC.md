@@ -1,0 +1,176 @@
+# LevelPitch — Spec (working name)
+
+Android app that tells you how to level a parked camper with drive-on wedges.
+Learning project with a real use case; personal use first, Play Store release
+later if it works well.
+
+## Problem
+
+After parking on a pitch, the vehicle is rarely level. Today: spirit level,
+guess a wedge, drive on, check again. The app replaces the guessing with a
+measurement and a concrete recommendation ("front left: step 2, rear left:
+step 1"), and verifies the result.
+
+## Goals
+
+- **Simple mode (primary, ships first):** measure vehicle tilt with the phone's
+  accelerometer, phone lying inside the vehicle. Target accuracy ≤ 0.2° after
+  calibration.
+- **Wedge recommendation:** per-wheel wedge steps for the user's own stepped
+  wedges, plus residual tilt after applying them.
+- **Camera mode (experimental, ships second):** estimate ground heights at the
+  wheel contact points from outside using ARCore depth, feed the same
+  recommendation engine, and **measure its accuracy against simple mode**.
+
+## Non-goals
+
+- Measuring a pitch *before* parking or comparing pitches.
+- Hydraulic jacks, levelling systems, stabiliser legs.
+- Live guidance while driving onto wedges, or streaming to a second device.
+- Vehicle body tilt from the camera (possible later stretch goal).
+- Per-frame segmentation in camera mode (see ObjectViz cost tradeoff).
+- Cloud features, accounts, network access of any kind.
+
+## Supported vehicles
+
+| Type | Levelling DoF | Output |
+|---|---|---|
+| 2-axle motorhome / van | pitch + roll, any wheel can be raised | wedge step per wheel |
+| Single-axle caravan | roll via wedges; pitch via jockey wheel | wedge step per side + jockey wheel up/down in cm |
+| Tandem-axle caravan | roll via wedges (both wheels of a side together); pitch via jockey wheel | wedge step per side + jockey wheel cm |
+
+## Core flows
+
+**F1 Setup (once).** Create a vehicle profile (type, dimensions) and an
+equipment profile (wedge step heights, number of wedges owned). Choose a
+measuring surface inside the vehicle and how the phone lies on it (top edge
+toward vehicle front by default; 90° rotations selectable).
+
+**F2 Zero calibration (once per vehicle, repeatable).** With the vehicle known
+level (e.g. checked with a spirit level on the chassis or on a level pad), tap
+"Set zero". Stores a pitch/roll offset that absorbs both the surface-vs-chassis
+misalignment and the sensor bias.
+
+**F3 Level loop (every pitch).**
+1. Place phone on the surface, tap Measure. The app averages ~2 s of
+   accelerometer data and rejects the result if the phone moved.
+2. Shows pitch/roll, a top-down vehicle diagram, and the wedge recommendation
+   with residual tilt ("level within 0.2°").
+3. User places wedges, drives on, and marks which wedges are in place.
+4. Re-measure. The app computes a correction relative to the current wedge
+   state ("front left: one step higher") until within tolerance (default 0.5°).
+
+Safety line in the UI: handbrake and chocks before leaving the vehicle.
+
+**F4 Camera scan (experimental).**
+1. Stand in front of or behind the vehicle so both wheels of one axle are in
+   view. The ARCore session starts and detects the ground.
+2. Tap each visible wheel once. The tap becomes a point prompt for MobileSAM
+   on that single frame, giving a tyre mask.
+3. Move slowly for a few seconds while keyframes record. Ground depth in an
+   annulus around each tyre's contact region (tyre mask excluded) is fused
+   into voxels, and a RANSAC plane is fitted locally per wheel.
+4. Contact-point height = plane height at the tyre's contact point in
+   ARCore's gravity-aligned world frame.
+5. Heights go to the same recommendation engine; AR labels are anchored at
+   each wheel ("+6 cm / step 2").
+6. For 2-axle vehicles, repeat at the other end. Linking the front and rear
+   axle (pitch) needs tracking across the vehicle length, which is the main
+   accuracy risk (see Open questions).
+
+**F5 Evaluation (experimental).** After a camera scan, the user levels using
+the camera recommendation, then runs a simple-mode measurement. The app logs
+predicted heights, recommended steps, the camera-implied tilt, the IMU tilt
+and the residual after levelling. Logs export as JSON for offline analysis
+(`tools/` Python scripts, as in ObjectViz).
+
+## Recommendation engine (pure Kotlin)
+
+- Vehicle frame: x forward, y left, z up; wheel contact points from the
+  profile.
+- Input is **either** tilt (pitch θ, roll φ) from simple mode **or** measured
+  contact heights from camera mode. Tilt converts to heights with
+  z_i = x_i·tan θ + y_i·tan φ.
+- Wheels are only ever raised, never lowered. Candidates are all
+  combinations of available steps (including none) under the "wedges owned"
+  limit. The search space is tiny (≤ 4 wheels × few steps), so brute force.
+- Objective: minimize residual tilt of the least-squares plane through the
+  raised contact points. Tie-break with fewer wedges, then lower wedges.
+- Caravans: optimize roll only via wedges; pitch becomes a jockey wheel
+  adjustment = hitch-to-axle distance × tan θ.
+- If the tallest step is insufficient, report the best achievable residual
+  and suggest turning or repositioning the vehicle.
+- Re-measure: the new measurement is relative to the current wedge state,
+  so new target = current heights + correction, snapped again.
+
+## Data model
+
+```
+VehicleProfile   id, name, type {MOTORHOME_2AXLE, CARAVAN_SINGLE, CARAVAN_TANDEM},
+                 wheelbaseMm, trackMm, hitchToAxleMm?, tandemSpacingMm?,
+                 phoneOrientation {0,90,180,270}, zeroOffset (pitchDeg, rollDeg),
+                 toleranceDeg = 0.5
+EquipmentProfile id, name, stepHeightsMm [e.g. 30, 60, 90], wedgesOwned
+Measurement      timestamp, source {IMU, CAMERA}, pitchDeg, rollDeg, stdDevDeg,
+                 contactHeightsMm? (camera)
+LevelSession     id, vehicleId, equipmentId, measurements[], wedgeState {wheel -> step}
+CameraCaptureLog sessionId, perWheel {contactPoint, planeNormal, inliers, rmsMm},
+                 trackingInfo, linked IMU measurement
+```
+
+Storage: local only (kotlinx.serialization JSON or Room; decide at M1).
+
+## Architecture & stack
+
+- Kotlin, Jetpack Compose, single activity, ViewModels (same stack as ObjectViz).
+- Packages: `leveling/` (pure math, no Android deps), `sensor/`,
+  `profiles/`, `ui/`, `ar/` (experimental, isolated).
+- ARCore declared **optional**, so the app installs on any device. Camera mode
+  is hidden when Depth is unsupported, and behind an "Experimental" toggle
+  for now.
+- Reuse from ObjectViz, adapted rather than copied blindly: `DepthProjection`
+  (use `textureIntrinsics`; 16-bit depth findings), voxel merging,
+  `fitPlane` RANSAC + eigenvector refinement, levelness gate.
+  **Differences to revisit:** depth range (ObjectViz clips at 1.5 m; ground
+  here is 1–4 m away), plane fit is local per wheel rather than one global
+  supporting plane, and the object of interest is the ground itself.
+
+## Testing
+
+- JVM unit tests for all math: angle conversion and sign conventions,
+  recommendation engine (all vehicle types, step snapping, insufficient steps,
+  re-measure correction). Run via `./gradlew testDebugUnitTest`.
+- Emulator: UI flows; tilt via the emulator's virtual sensor controls.
+- Pixel 10 Pro over USB/adb: real accuracy. Protocol: board on a level
+  surface, raise one end with shims of known thickness (1 cm over 57.3 cm ≈
+  1°), compare against the app and a spirit level; repeat across several
+  angles and phone orientations.
+- Camera mode: logged field captures on the real vehicle, analysed offline.
+
+## Milestones (each = several small, focused commits; tests green at each commit)
+
+- **M0** Project skeleton: Gradle, Compose shell, CI-able test task, README.
+- **M1** Recommendation engine + unit tests (pure Kotlin).
+- **M2** Sensor measurement: averaging, stillness detection, orientation
+  handling, zero calibration; bench-validated on the Pixel.
+- **M3** Profiles + level loop UI + wedge state + re-measure. → **usable
+  for real trips.**
+- **M4** ARCore session, ground detection, wheel tap + single-frame MobileSAM.
+- **M5** Per-wheel local ground plane + contact heights → recommendation.
+- **M6** AR wheel labels, evaluation logging, JSON export, analysis script.
+- **Later** Play Store readiness: English + German UI, onboarding, handling
+  devices without Depth, privacy/data-safety declarations.
+
+## Open questions / risks
+
+- Accelerometer bias and noise on the Pixel: does zero calibration alone
+  reach ≤ 0.2°, or is a flip calibration (measure, rotate 180°, measure)
+  needed?
+- ARCore depth accuracy on grass/gravel at 1–4 m.
+- Tyre contact-point estimation: the contact patch is occluded; how well does
+  mask bottom + local ground plane approximate it?
+- Pitch for 2-axle vehicles needs front and rear axle heights in one
+  consistent frame. Does tracking drift over the vehicle length stay below
+  ~1 cm (≈ 0.16° over 3.5 m)?
+- How large are suspension and load effects? I.e. how much does levelled
+  ground differ from a levelled vehicle? The F5 evaluation answers this.
