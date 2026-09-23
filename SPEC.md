@@ -14,8 +14,10 @@ step 1"), and verifies the result.
 ## Goals
 
 - **Simple mode (primary, ships first):** measure vehicle tilt with the phone's
-  accelerometer, phone lying inside the vehicle. Target accuracy ≤ 0.2° after
-  calibration.
+  accelerometer, phone lying inside the vehicle. Target accuracy ≤ 0.25°
+  after calibration: half the default 0.5° levelling tolerance, so "level
+  within 0.5°" is trustworthy and step choices near a boundary stay right
+  (one 30 mm step ≈ 1.1° roll over a 1.6 m track).
 - **Wedge recommendation:** per-wheel wedge steps for the user's own stepped
   wedges, plus residual tilt after applying them.
 - **Camera mode (experimental, ships second):** estimate ground heights at the
@@ -210,9 +212,18 @@ Storage: local only (kotlinx.serialization JSON or Room; decide at M1).
 
 ## Open questions / risks
 
-- Accelerometer bias and noise on the Pixel: does zero calibration alone
-  reach ≤ 0.2°, or is a flip calibration (measure, rotate 180°, measure)
-  needed?
+- ~~Accelerometer bias and noise on the Pixel: does zero calibration alone
+  reach the target, or is a flip calibration needed?~~ Answered by the M2
+  bench test (docs/bench-validation.md, rough setup): noise 0.04° per
+  sample, drift ≤ 0.01°; with a zero, 1–5° read within ±0.17° pitch and
+  ≤ 0.18° roll crosstalk, with no trend with angle (setup error, not scale).
+  Offsets that turn with the phone are 0.3–0.7°, so one zero *per
+  orientation* is required. A flip calibration is not needed.
+- Placement repeatability: the level-board readings in the Rear orientation
+  differed by 0.5° in roll between two sessions, probably because the phone
+  rocks on its back or lands in a different spot. In use, the phone must go
+  back to the spot where the zero was set. The M3 UI should say so; a
+  pick-up/put-back repeatability test (bench step 5) is still to do.
 - ARCore depth accuracy on grass/gravel at 1–4 m.
 - Tyre contact-point estimation: the contact patch is occluded; how well does
   mask bottom + local ground plane approximate it?

@@ -74,13 +74,16 @@ rejected. If they are, raise the limits in `StillnessLimits`.
 
 | Step | Orientation | Shim / setup | Expected | Pitch | Roll | Noise | Drift | n | Note |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | Front | level | 0 / 0 | | | | | | |
-| 2 | Front | level | 0 / 0 | | | | | | |
-| 2 | Rear | level | 0 / 0 | | | | | | |
-| 3 | Front | +10 mm front | 1.000 / 0 | | | | | | |
-| 3 | Front | +20 mm front | 2.000 / 0 | | | | | | |
-| 3 | Front | +30 mm front | 3.001 / 0 | | | | | | |
-| 3 | Front | +50 mm front | 5.006 / 0 | | | | | | |
+| 1 | Front | level | 0 / 0 | 0.0| 0.0| 0.04| 0.01| 201| |
+| 2 | Front | level | 0 / 0 |0.0 | -0.01| 0.04|0.00 |201 | |
+| 2 | Rear | level | 0 / 0 |-0.67  |-0.64 |0.04 |0.01 |201 | |
+| 2 | Left | level | 0 / 0 |-0.3  |0.35 |0.04 |0.00 |201 | |
+| 3 | Front | +10 mm front | 1.000 / 0 | 1.1 |0.1 |0.05 |0.00 |201 | |
+| 3 | Front | +20 mm front | 2.000 / 0 | 2.16| 0.14| 0.04| 0.01| 201| |
+| 3 | Front | +30 mm front | 3.001 / 0 | 2.83|0.18 |0.06 |0.00 |201 | |
+| 3 | Front | +50 mm front | 5.006 / 0 | 5.17| 0.15| 0.09| 0.01|201 | |
 
-Put the results and conclusions (bias size, flip calibration needed or not, tuned
-limits) into SPEC.md's open questions when done.
+Conclusions (2026-09-23, rough setup, Front orientation checked with tilt):
+accuracy within ±0.2° up to 5°, orientation-dependent offsets of 0.3–0.7°
+(so one zero per orientation, no flip calibration), limits need no tuning.
+Steps 4–6 not run yet. Details are in SPEC.md's open questions.
