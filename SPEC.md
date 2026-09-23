@@ -101,7 +101,8 @@ and the residual after levelling. Logs export as JSON for offline analysis
 - Objective: minimize residual tilt of the least-squares plane through the
   raised contact points: the total tilt (steepest slope, combining pitch and
   roll) for motorhomes, |roll| for caravans. Residuals within 0.01° count
-  as equal; ties go to fewer wedges, then lower wedges.
+  as equal; ties go to fewer changes (re-measure only), then fewer wedges,
+  then lower wedges.
 - Caravans: optimize roll only via wedges; pitch becomes a jockey wheel
   adjustment that brings the hitch to axle height *after* the wedges are in
   place: Δhitch = mean raised wheel height − hitch-to-axle distance × tan θ
@@ -111,7 +112,13 @@ and the residual after levelling. Logs export as JSON for offline analysis
 - If the tallest step is insufficient, report the best achievable residual
   and suggest turning or repositioning the vehicle.
 - Re-measure: the new measurement is relative to the current wedge state,
-  so new target = current heights + correction, snapped again.
+  so new target = current heights + correction, snapped again. Implemented
+  as: ground heights = heights from the new tilt − current wedge heights,
+  then the normal search; the result is an absolute wedge state plus the
+  per-wheel step changes. Ties first prefer fewer changes to the current
+  state (don't make the user drive off equally good wedges). A tilt
+  measurement cannot see chassis twist, so twist from the current wedges is
+  not recovered.
 
 ## Data model
 

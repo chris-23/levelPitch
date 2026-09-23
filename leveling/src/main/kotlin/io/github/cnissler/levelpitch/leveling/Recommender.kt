@@ -31,10 +31,10 @@ data class Equipment(val stepHeightsMm: List<Double>, val wedgesOwned: Int) {
 typealias WedgeState = Map<Wheel, Int>
 
 sealed interface Measurement {
-    /** Simple mode: vehicle tilt from the phone. */
+    /** Simple mode: vehicle tilt from the phone, taken with the current wedges in place. */
     data class VehicleTilt(val tilt: Tilt) : Measurement
 
-    /** Camera mode: ground heights at every wheel contact point, in mm. */
+    /** Camera mode: ground heights at every wheel contact point without wedges, in mm. */
     data class GroundHeights(val heightsMm: Map<Wheel, Double>) : Measurement
 }
 
@@ -56,16 +56,33 @@ data class Recommendation(
     val wedgeCount: Int get() = steps.values.count { it > 0 }
 
     fun isWithin(toleranceDeg: Double = DEFAULT_TOLERANCE_DEG): Boolean = residualDeg <= toleranceDeg
+
+    /** Step change per wheel relative to [current] (+1 = one step higher); unchanged wheels omitted. */
+    fun changesFrom(current: WedgeState): Map<Wheel, Int> =
+        steps.mapValues { (wheel, step) -> step - (current[wheel] ?: 0) }.filterValues { it != 0 }
 }
 
 /**
  * Best wedge steps for [vehicle] given [measurement]: brute force over all wedge states within
  * [Equipment.wedgesOwned], minimising the residual tilt of the least-squares plane through the
- * raised contact points. Ties (within [RESIDUAL_TIE_DEG]) go to fewer wedges, then lower wedges.
+ * raised contact points. Ties (within [RESIDUAL_TIE_DEG]) go to fewer changes from [current],
+ * then fewer wedges, then lower wedges.
+ *
+ * Re-measure: a tilt measured on the [current] wedges is turned back into ground heights by
+ * subtracting them, so the result is again an absolute wedge state (see [Recommendation.changesFrom]).
+ * Twist (one diagonal higher) is invisible to a tilt measurement and is not recovered.
  */
-fun recommend(vehicle: Vehicle, equipment: Equipment, measurement: Measurement): Recommendation {
+fun recommend(
+    vehicle: Vehicle,
+    equipment: Equipment,
+    measurement: Measurement,
+    current: WedgeState = emptyMap(),
+): Recommendation {
+    require(vehicle.wheels.keys.containsAll(current.keys)) { "current wedges on unknown wheels" }
+    require(current.values.all { it in equipment.steps }) { "current wedges use unknown steps" }
     val ground = when (measurement) {
         is Measurement.VehicleTilt -> vehicle.contactHeightsMm(measurement.tilt)
+            .mapValues { (wheel, z) -> z - equipment.heightMm(current[wheel] ?: 0) }
         is Measurement.GroundHeights -> {
             require(measurement.heightsMm.keys == vehicle.wheels.keys) { "need a height for every wheel" }
             measurement.heightsMm
@@ -84,7 +101,8 @@ fun recommend(vehicle: Vehicle, equipment: Equipment, measurement: Measurement):
     return candidates
         .filter { it.residualDeg < best + RESIDUAL_TIE_DEG }
         .minWith(
-            compareBy<Recommendation> { it.wedgeCount }
+            compareBy<Recommendation> { it.changesFrom(current).size }
+                .thenBy { it.wedgeCount }
                 .thenBy { r -> r.steps.values.sumOf { equipment.heightMm(it) } },
         )
 }
