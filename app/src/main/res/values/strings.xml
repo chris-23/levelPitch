@@ -20,7 +20,9 @@
     <string name="not_flat">Lay the phone flat, screen up.</string>
     <string name="too_few_samples">Too few sensor readings (%1$d). Try again.</string>
     <string name="no_sensor">This device has no accelerometer.</string>
-    <string name="calibration">Zero calibration</string>
+    <string name="calibration">Calibration</string>
+    <string name="calibration_needs_vehicle">Set up a vehicle first. Its zero calibration is stored with it.</string>
+    <string name="measure_check">Measure (check calibration)</string>
     <string name="zero_value">Zero: pitch %1$+.2f°, roll %2$+.2f°</string>
     <string name="zero_none">No zero set for this orientation. Readings are uncorrected.</string>
     <string name="zero_done">Zero set.</string>

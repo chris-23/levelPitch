@@ -5,7 +5,10 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import io.github.cnissler.levelpitch.leveling.PhoneOrientation
 import io.github.cnissler.levelpitch.leveling.Vec3
+import io.github.cnissler.levelpitch.leveling.WindowResult
+import io.github.cnissler.levelpitch.leveling.analyzeWindow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -62,7 +65,14 @@ class AccelerometerSource(context: Context) {
         return collected
     }
 
+    /** One simple-mode measurement: settle, collect a window, average and check stillness. */
+    suspend fun measure(orientation: PhoneOrientation): WindowResult =
+        analyzeWindow(collect(SETTLE_MS, WINDOW_MS), orientation)
+
     private companion object {
+        const val SETTLE_MS = 500L
+        const val WINDOW_MS = 2_000L
+
         /** ~100 Hz; above 200 Hz Android 12+ requires HIGH_SAMPLING_RATE_SENSORS. */
         const val SAMPLING_PERIOD_US = 10_000
         const val STALL_MARGIN_MS = 2_000L

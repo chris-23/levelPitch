@@ -11,6 +11,7 @@ import io.github.cnissler.levelpitch.ui.profiles.VehicleEditScreen
 import kotlinx.serialization.Serializable
 
 @Serializable object HomeRoute
+@Serializable object CalibrationRoute
 @Serializable object ProfilesRoute
 @Serializable data class VehicleEditRoute(val id: String? = null)
 @Serializable data class EquipmentEditRoute(val id: String? = null)
@@ -20,7 +21,11 @@ fun LevelPitchNavHost() {
     val nav = rememberNavController()
     NavHost(nav, startDestination = HomeRoute) {
         composable<HomeRoute> {
-            HomeScreen(onProfiles = { nav.navigate(ProfilesRoute) })
+            // Temporary start screen until the level loop takes over.
+            CalibrationScreen(onBack = {}, onProfiles = { nav.navigate(ProfilesRoute) })
+        }
+        composable<CalibrationRoute> {
+            CalibrationScreen(onBack = { nav.popBackStack() }, onProfiles = { nav.navigate(ProfilesRoute) })
         }
         composable<ProfilesRoute> {
             ProfilesScreen(
