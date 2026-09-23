@@ -94,10 +94,20 @@ and the residual after levelling. Logs export as JSON for offline analysis
 - Wheels are only ever raised, never lowered. Candidates are all
   combinations of available steps (including none) under the "wedges owned"
   limit. The search space is tiny (≤ 4 wheels × few steps), so brute force.
+- Frame origin: centre of the wheel footprint (mid-wheelbase for motorhomes,
+  (mid-)axle centre for caravans). One wheel stands on one step of one
+  wedge; a tandem caravan's two wheels of a side always get the same step,
+  so raising a side costs two wedges. Output is a step per wheel (0 = none).
 - Objective: minimize residual tilt of the least-squares plane through the
-  raised contact points. Tie-break with fewer wedges, then lower wedges.
+  raised contact points: the total tilt (steepest slope, combining pitch and
+  roll) for motorhomes, |roll| for caravans. Residuals within 0.01° count
+  as equal; ties go to fewer wedges, then lower wedges.
 - Caravans: optimize roll only via wedges; pitch becomes a jockey wheel
-  adjustment = hitch-to-axle distance × tan θ.
+  adjustment that brings the hitch to axle height *after* the wedges are in
+  place: Δhitch = mean raised wheel height − hitch-to-axle distance × tan θ
+  (+ = raise the hitch). Wedges lift the axle centre, e.g. one side +30 mm
+  means +15 mm at the hitch. Camera heights say nothing about the body, so a
+  caravan gets jockey advice only from a tilt measurement.
 - If the tallest step is insufficient, report the best achievable residual
   and suggest turning or repositioning the vehicle.
 - Re-measure: the new measurement is relative to the current wedge state,
