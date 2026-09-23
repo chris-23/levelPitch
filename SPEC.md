@@ -137,6 +137,14 @@ and the residual after levelling. Logs export as JSON for offline analysis
   cannot correct a phone *turned* on the surface: a 5° turn mixes
   sin 5° ≈ 9 % of pitch into roll (0.26° at 3° tilt), so the phone must be
   aligned with an edge of the surface.
+- Measure: wait 0.5 s for the tap to settle, then average ~2 s of raw
+  accelerometer samples (TYPE_ACCELEROMETER, ~100 Hz). Rejected if the phone
+  is not flat screen-up (> 15°), if single samples scatter too much (RMS
+  > 0.5°, vibration) or if a quarter-window mean drifts from the overall
+  mean (> 0.1°, rocking). Thresholds are starting values for the bench test.
+- Until profiles exist (M3), orientation and one zero per orientation are
+  kept in SharedPreferences; the zero depends on orientation because the
+  sensor bias turns with the phone.
 
 ## Data model
 
