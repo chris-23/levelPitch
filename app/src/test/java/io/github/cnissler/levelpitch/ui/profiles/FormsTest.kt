@@ -5,6 +5,8 @@ import io.github.cnissler.levelpitch.leveling.Tilt
 import io.github.cnissler.levelpitch.profiles.EquipmentProfile
 import io.github.cnissler.levelpitch.profiles.VehicleProfile
 import io.github.cnissler.levelpitch.profiles.vehiclePresets
+import io.github.cnissler.levelpitch.profiles.caravanSizes
+import io.github.cnissler.levelpitch.profiles.estimateCaravan
 import io.github.cnissler.levelpitch.profiles.wedgePresets
 import io.github.cnissler.levelpitch.profiles.VehicleType
 import org.junit.Assert.assertEquals
@@ -133,6 +135,43 @@ class FormsTest {
         val form = EquipmentForm.newDefault()
         assertEquals("fiamma-level-up", form.presetId)
         assertEquals(emptySet<EquipmentField>(), form.errors())
+    }
+
+    @Test
+    fun caravanEstimateFollowsLengthAndWidth() {
+        val e = estimateCaravan(overallLengthMm = 6800.0, widthMm = 2300.0, tandem = false)
+        assertEquals(2000.0, e.trackMm, 0.0)
+        assertEquals(4110.0, e.hitchToAxleMm, 0.0) // 1.2 m drawbar + 52 % of 5.6 m body
+        assertNull(e.tandemSpacingMm)
+        assertEquals(900.0, estimateCaravan(8500.0, 2500.0, tandem = true).tandemSpacingMm!!, 0.0)
+    }
+
+    @Test
+    fun everyCaravanSizeGivesAValidProfileOfItsType() {
+        for (size in caravanSizes) {
+            val form = VehicleForm(name = "x").withCaravanSize(size)
+            val p = form.toProfile("id")!!
+            assertEquals(size.id, if (size.tandem) VehicleType.CARAVAN_TANDEM else VehicleType.CARAVAN_SINGLE, p.type)
+            assertEquals(size, form.matchingSize())
+            p.toVehicle()
+        }
+    }
+
+    @Test
+    fun switchingToACaravanFillsItsDefaultSize() {
+        val caravan = VehicleForm.newDefault().withType(VehicleType.CARAVAN_SINGLE)
+        assertEquals("medium", caravan.matchingSize()!!.id)
+        val tandem = caravan.withType(VehicleType.CARAVAN_TANDEM)
+        assertEquals("tandem", tandem.matchingSize()!!.id)
+        assertEquals(VehicleType.MOTORHOME_2AXLE, tandem.withType(VehicleType.MOTORHOME_2AXLE).type)
+    }
+
+    @Test
+    fun switchingKeepsDimensionsTheUserEntered() {
+        val own = VehicleForm(name = "x", type = VehicleType.CARAVAN_SINGLE, trackCm = "205", hitchToAxleCm = "433")
+        val tandem = own.withType(VehicleType.CARAVAN_TANDEM)
+        assertEquals("205", tandem.trackCm)
+        assertEquals("433", tandem.hitchToAxleCm)
     }
 
     @Test

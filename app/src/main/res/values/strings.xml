@@ -120,6 +120,12 @@
     <string name="wheel_description">%1$s: %2$s</string>
     <string name="base_vehicle">Base vehicle</string>
     <string name="base_vehicle_choose">Choose a base vehicle to fill in its dimensions</string>
+    <string name="caravan_size">Typical size (overall length incl. drawbar)</string>
+    <string name="caravan_size_compact">Compact · %1$s m</string>
+    <string name="caravan_size_medium">Medium · %1$s m</string>
+    <string name="caravan_size_large">Large · %1$s m</string>
+    <string name="caravan_size_tandem">About %1$s m</string>
+    <string name="caravan_size_help">Estimated values, good enough to start: the app corrects small errors when you measure again. For better values, measure track between the tyre centres and the hitch distance from the coupling ball to the wheel hub.</string>
     <string name="preset_custom">Other / enter values yourself</string>
     <string name="wedge_model">Wedge model</string>
     <string name="wedge_model_choose">Choose a wedge model to fill in its steps</string>

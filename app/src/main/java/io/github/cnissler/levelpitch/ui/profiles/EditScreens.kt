@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,7 +46,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.github.cnissler.levelpitch.R
+import io.github.cnissler.levelpitch.profiles.CaravanSize
 import io.github.cnissler.levelpitch.profiles.VehicleType
+import io.github.cnissler.levelpitch.profiles.caravanSizes
 import io.github.cnissler.levelpitch.profiles.vehiclePresets
 import io.github.cnissler.levelpitch.profiles.wedgePresets
 import io.github.cnissler.levelpitch.ui.BackButton
@@ -75,7 +79,7 @@ fun VehicleEditScreen(id: String?, onDone: () -> Unit) {
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .selectable(selected = form.type == t, role = Role.RadioButton) { vm.form = form.copy(type = t) },
+                        .selectable(selected = form.type == t, role = Role.RadioButton) { vm.form = form.withType(t) },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     RadioButton(selected = form.type == t, onClick = null)
@@ -86,6 +90,8 @@ fun VehicleEditScreen(id: String?, onDone: () -> Unit) {
 
         if (form.type == VehicleType.MOTORHOME_2AXLE) {
             BasePicker(form) { vm.form = it }
+        } else {
+            CaravanSizePicker(form) { vm.form = it }
         }
 
         if (VehicleField.WHEELBASE in form.fields) {
@@ -212,6 +218,31 @@ private fun BasePicker(form: VehicleForm, onChange: (VehicleForm) -> Unit) {
             Text(stringResource(R.string.base_vehicle_approximate), style = MaterialTheme.typography.bodySmall)
         }
     }
+}
+
+/** Typical caravan sizes as chips; their dimensions are estimates, so the help says how to measure. */
+@Composable
+private fun CaravanSizePicker(form: VehicleForm, onChange: (VehicleForm) -> Unit) {
+    val tandem = form.type == VehicleType.CARAVAN_TANDEM
+    val selected = form.matchingSize()
+    Text(stringResource(R.string.caravan_size), style = MaterialTheme.typography.labelLarge)
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        caravanSizes.filter { it.tandem == tandem }.forEach { size ->
+            FilterChip(
+                selected = size == selected,
+                onClick = { onChange(form.withCaravanSize(size)) },
+                label = { Text(stringResource(size.label(), formatDecimal(size.overallLengthMm / 1000))) },
+            )
+        }
+    }
+    Text(stringResource(R.string.caravan_size_help), style = MaterialTheme.typography.bodySmall)
+}
+
+private fun CaravanSize.label(): Int = when (id) {
+    "compact" -> R.string.caravan_size_compact
+    "medium" -> R.string.caravan_size_medium
+    "large" -> R.string.caravan_size_large
+    else -> R.string.caravan_size_tandem
 }
 
 /** "Pick a known model" dropdown with a last entry for entering values yourself. */

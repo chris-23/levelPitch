@@ -161,8 +161,20 @@ wheelbase and track, and a new vehicle starts from the most common one
 (September 2026); the engine uses one track, so presets store the mean of
 front and rear. A few cm off changes recommended heights by ~1 %, so
 presets are good enough, but the editor asks to compare with the vehicle
-papers because converters sometimes change the chassis. Caravans have no
-common bases, so they get no presets.
+papers because converters sometimes change the chassis.
+
+Caravans have no common bases, and makers don't publish track or
+hitch-to-axle distance, so a model database isn't practical. Instead the
+editor offers typical sizes (compact 5.5 m, medium 6.8 m, large 7.8 m;
+tandem 8.5 / 9.5 m overall length) with *estimated* dimensions from a rule
+of thumb: track = width − 30 cm, hitch-to-axle = 1.2 m drawbar + 52 % of the
+body length, tandem axles 90 cm apart. Estimates are fine for levelling: a
+10 % track error changes wedge heights by 10 % (about a quarter step at 2°
+roll), and the jockey advice is continuous, so the re-measure loop absorbs
+the error. The editor says how to measure better values. Switching the
+type to a caravan fills the default size (medium / 8.5 m tandem) unless the
+user already entered dimensions. The rule is a guess to check against
+real caravans.
 
 The wedge editor likewise offers common stepped wedges with their published
 lift per step: Fiamma Level Up / Berger Multi Level Ramp (4/7/10 cm),

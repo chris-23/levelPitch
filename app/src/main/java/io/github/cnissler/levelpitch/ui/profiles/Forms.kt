@@ -2,7 +2,9 @@ package io.github.cnissler.levelpitch.ui.profiles
 
 import io.github.cnissler.levelpitch.leveling.DEFAULT_TOLERANCE_DEG
 import io.github.cnissler.levelpitch.leveling.PhoneOrientation
+import io.github.cnissler.levelpitch.profiles.CaravanSize
 import io.github.cnissler.levelpitch.profiles.EquipmentProfile
+import io.github.cnissler.levelpitch.profiles.caravanSizes
 import io.github.cnissler.levelpitch.profiles.PresetVariant
 import io.github.cnissler.levelpitch.profiles.VehiclePreset
 import io.github.cnissler.levelpitch.profiles.WedgePreset
@@ -43,6 +45,37 @@ data class VehicleForm(
         trackCm = mmToCm(variant.trackMm),
         presetId = preset.id,
     )
+
+    /** Estimated caravan dimensions for a typical size; the type follows the size's axle count. */
+    fun withCaravanSize(size: CaravanSize): VehicleForm {
+        val e = size.estimate
+        return copy(
+            type = if (size.tandem) VehicleType.CARAVAN_TANDEM else VehicleType.CARAVAN_SINGLE,
+            trackCm = mmToCm(e.trackMm),
+            hitchToAxleCm = mmToCm(e.hitchToAxleMm),
+            tandemSpacingCm = e.tandemSpacingMm?.let { mmToCm(it) } ?: tandemSpacingCm,
+            presetId = size.id,
+        )
+    }
+
+    /** The caravan size the current dimensions match, if any. */
+    fun matchingSize(): CaravanSize? = caravanSizes.find { s ->
+        val e = s.estimate
+        type == (if (s.tandem) VehicleType.CARAVAN_TANDEM else VehicleType.CARAVAN_SINGLE) &&
+            parseDecimal(trackCm) == e.trackMm / 10 && parseDecimal(hitchToAxleCm) == e.hitchToAxleMm / 10 &&
+            (!s.tandem || parseDecimal(tandemSpacingCm) == e.tandemSpacingMm!! / 10)
+    }
+
+    /**
+     * Switches the type. A caravan without a hitch distance yet, or one still on a typical size,
+     * gets the default size for the new type, so every type starts with usable values.
+     */
+    fun withType(t: VehicleType): VehicleForm {
+        val switched = copy(type = t)
+        if (t == VehicleType.MOTORHOME_2AXLE) return switched
+        val untouched = hitchToAxleCm.isBlank() || matchingSize() != null
+        return if (untouched) switched.withCaravanSize(defaultCaravanSize(t)) else switched
+    }
 
     /** The preset variant the current dimensions match, if any. */
     fun matchingVariant(preset: VehiclePreset): PresetVariant? = preset.variants.find {
@@ -89,6 +122,9 @@ data class VehicleForm(
 
     companion object {
         val TOLERANCE_RANGE = 0.1..5.0
+
+        fun defaultCaravanSize(type: VehicleType): CaravanSize =
+            caravanSizes.first { it.id == if (type == VehicleType.CARAVAN_TANDEM) "tandem" else "medium" }
 
         /** A new vehicle starts from the most common base: the Ducato motorhome chassis, long wheelbase. */
         fun newDefault(): VehicleForm = vehiclePresets.first().let { VehicleForm().withPreset(it, it.variants.last()) }
