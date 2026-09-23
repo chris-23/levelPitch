@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
@@ -19,6 +20,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.cnissler.levelpitch.LevelPitchApp
 import io.github.cnissler.levelpitch.R
 import io.github.cnissler.levelpitch.leveling.PhoneOrientation
+import io.github.cnissler.levelpitch.ui.profiles.formatDecimal
 
 /** A ViewModel built from the app container; [key] separates instances of the same class. */
 @Composable
@@ -26,6 +28,10 @@ inline fun <reified VM : ViewModel> appViewModel(key: String? = null, crossinlin
     val app = LocalContext.current.applicationContext as LevelPitchApp
     return viewModel(key = key) { create(app) }
 }
+
+/** [value] shortest, with the decimal separator of the app's current language. */
+@Composable
+fun displayDecimal(value: Double): String = formatDecimal(value, LocalConfiguration.current.locales[0])
 
 @Composable
 fun BackButton(onBack: () -> Unit) {

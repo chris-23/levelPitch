@@ -23,6 +23,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -122,7 +123,8 @@ private fun AddButton(text: Int, onClick: () -> Unit) {
 
 @Composable
 private fun vehicleSummary(v: VehicleProfile): String {
-    fun cm(mm: Double?) = mm?.let { formatDecimal(it / 10) } ?: "?"
+    val locale = LocalConfiguration.current.locales[0]
+    fun cm(mm: Double?) = mm?.let { formatDecimal(it / 10, locale) } ?: "?"
     return when (v.type) {
         VehicleType.MOTORHOME_2AXLE -> stringResource(R.string.summary_motorhome, cm(v.wheelbaseMm), cm(v.trackMm))
         VehicleType.CARAVAN_SINGLE -> stringResource(R.string.summary_caravan_single, cm(v.trackMm), cm(v.hitchToAxleMm))
@@ -132,9 +134,15 @@ private fun vehicleSummary(v: VehicleProfile): String {
 }
 
 @Composable
-private fun equipmentSummary(e: EquipmentProfile): String = when (e.kind) {
-    EquipmentKind.STEPPED ->
-        stringResource(R.string.summary_wedges, e.stepHeightsMm.joinToString(" / ") { formatDecimal(it / 10) }, e.wedgesOwned)
-    EquipmentKind.CONTINUOUS ->
-        stringResource(R.string.summary_continuous, formatDecimal((e.maxLiftMm ?: 0.0) / 10), e.wedgesOwned)
+private fun equipmentSummary(e: EquipmentProfile): String {
+    val locale = LocalConfiguration.current.locales[0]
+    return when (e.kind) {
+        EquipmentKind.STEPPED -> stringResource(
+            R.string.summary_wedges,
+            e.stepHeightsMm.joinToString(" / ") { formatDecimal(it / 10, locale) },
+            e.wedgesOwned,
+        )
+        EquipmentKind.CONTINUOUS ->
+            stringResource(R.string.summary_continuous, formatDecimal((e.maxLiftMm ?: 0.0) / 10, locale), e.wedgesOwned)
+    }
 }

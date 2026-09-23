@@ -47,7 +47,7 @@ import io.github.cnissler.levelpitch.ui.HoldStill
 import io.github.cnissler.levelpitch.ui.RejectedResult
 import io.github.cnissler.levelpitch.ui.TiltLines
 import io.github.cnissler.levelpitch.ui.appViewModel
-import io.github.cnissler.levelpitch.ui.profiles.formatDecimal
+import io.github.cnissler.levelpitch.ui.displayDecimal
 import kotlin.math.abs
 
 /** Hands the session report to the Android share sheet; the app itself has no network access. */
@@ -208,7 +208,7 @@ private fun MeasurementCard(state: LevelUiState, setup: Setup.Ready) {
                     TiltLines(plan.tilt)
                     if (plan.isLevel) {
                         Text(
-                            stringResource(R.string.level_ok, formatDecimal(setup.vehicleProfile.toleranceDeg)),
+                            stringResource(R.string.level_ok, displayDecimal(setup.vehicleProfile.toleranceDeg)),
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold,
@@ -239,7 +239,7 @@ private fun PlanCard(plan: LevelPlan, setup: Setup.Ready, showJockey: Boolean, o
             }
 
             if (rec.isWithin(tolerance)) {
-                Text(stringResource(R.string.residual_ok, formatDecimal(tolerance), rec.residualDeg))
+                Text(stringResource(R.string.residual_ok, displayDecimal(tolerance), rec.residualDeg))
             } else {
                 Text(stringResource(R.string.residual_insufficient, rec.residualDeg), color = MaterialTheme.colorScheme.error)
             }

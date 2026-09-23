@@ -50,7 +50,7 @@ import io.github.cnissler.levelpitch.ui.pixel.SpriteKind
 import io.github.cnissler.levelpitch.ui.pixel.liftBadge
 import io.github.cnissler.levelpitch.ui.pixel.vehicleSprite
 import io.github.cnissler.levelpitch.ui.pixel.wedgeBadge
-import io.github.cnissler.levelpitch.ui.profiles.formatDecimal
+import io.github.cnissler.levelpitch.ui.displayDecimal
 
 private val CARD_WIDTH = 112.dp
 private val GAP = 8.dp
@@ -210,7 +210,9 @@ private fun stepOption(step: Int, equipment: Equipment): String = when {
     else -> stringResource(R.string.step_option, step, cm(equipment.heightMm(step)))
 }
 
-fun cm(mm: Double): String = formatDecimal(Math.round(mm) / 10.0)
+/** Millimetres as centimetres with one decimal at most, in the app language's number format. */
+@Composable
+fun cm(mm: Double): String = displayDecimal(Math.round(mm) / 10.0)
 
 fun Wheel.label(): Int = when (this) {
     Wheel.FRONT_LEFT -> R.string.wheel_front_left

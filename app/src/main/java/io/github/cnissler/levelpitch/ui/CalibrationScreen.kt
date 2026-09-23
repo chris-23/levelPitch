@@ -185,7 +185,11 @@ private fun AngleLine(valueRes: Int, deg: Double, positiveRes: Int, negativeRes:
         Direction.NEGATIVE -> stringResource(negativeRes)
         Direction.NONE -> null
     }
-    Text(if (word == null) value else "$value  $word", style = MaterialTheme.typography.headlineSmall)
+    // Direction on its own line: long words ("Querneigung -0,80° rechts höher") would break mid-phrase.
+    Column {
+        Text(value, style = MaterialTheme.typography.headlineSmall)
+        if (word != null) Text(word, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+    }
 }
 
 @Composable

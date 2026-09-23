@@ -56,6 +56,7 @@ import io.github.cnissler.levelpitch.ui.BackButton
 import io.github.cnissler.levelpitch.ui.ConfirmDeleteDialog
 import io.github.cnissler.levelpitch.ui.OrientationPicker
 import io.github.cnissler.levelpitch.ui.appViewModel
+import io.github.cnissler.levelpitch.ui.displayDecimal
 
 @Composable
 fun VehicleEditScreen(id: String?, onDone: () -> Unit) {
@@ -242,7 +243,7 @@ private fun BasePicker(form: VehicleForm, onChange: (VehicleForm) -> Unit) {
                 FilterChip(
                     selected = v == selected,
                     onClick = { onChange(form.withPreset(preset, v)) },
-                    label = { Text(stringResource(R.string.base_vehicle_wheelbase, formatDecimal(v.wheelbaseMm / 10))) },
+                    label = { Text(stringResource(R.string.base_vehicle_wheelbase, displayDecimal(v.wheelbaseMm / 10))) },
                 )
             }
         }
@@ -264,7 +265,7 @@ private fun CaravanSizePicker(form: VehicleForm, onChange: (VehicleForm) -> Unit
             FilterChip(
                 selected = size == selected,
                 onClick = { onChange(form.withCaravanSize(size)) },
-                label = { Text(stringResource(size.label(), formatDecimal(size.overallLengthMm / 1000))) },
+                label = { Text(stringResource(size.label(), displayDecimal(size.overallLengthMm / 1000))) },
             )
         }
     }

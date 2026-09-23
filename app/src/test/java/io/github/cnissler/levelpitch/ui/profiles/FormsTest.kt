@@ -13,6 +13,7 @@ import io.github.cnissler.levelpitch.profiles.VehicleType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import java.util.Locale
 
 class FormsTest {
 
@@ -29,6 +30,13 @@ class FormsTest {
         assertEquals("350", formatDecimal(350.0))
         assertEquals("3.5", formatDecimal(3.5))
         assertEquals("0.5", formatDecimal(0.5))
+    }
+
+    @Test
+    fun displayFormatUsesTheLanguagesDecimalSeparator() {
+        assertEquals("403,5", formatDecimal(403.5, Locale.GERMAN))
+        assertEquals("403.5", formatDecimal(403.5, Locale.ENGLISH))
+        assertEquals("30", formatDecimal(30.0, Locale.GERMAN))
     }
 
     @Test

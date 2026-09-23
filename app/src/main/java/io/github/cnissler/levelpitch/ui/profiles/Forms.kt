@@ -14,12 +14,18 @@ import io.github.cnissler.levelpitch.profiles.vehiclePresets
 import io.github.cnissler.levelpitch.profiles.VehicleProfile
 import io.github.cnissler.levelpitch.profiles.VehicleType
 import java.math.BigDecimal
+import java.text.DecimalFormatSymbols
+import java.util.Locale
 
 /** Parses a user-typed decimal; accepts a decimal comma ("350,5"). */
 fun parseDecimal(text: String): Double? = text.trim().replace(',', '.').toDoubleOrNull()
 
 /** Shortest plain form of [value] for prefilling a text field ("350", "3.5"). */
 fun formatDecimal(value: Double): String = BigDecimal.valueOf(value).stripTrailingZeros().toPlainString()
+
+/** Like [formatDecimal], with [locale]'s decimal separator for display ("3,5" in German). */
+fun formatDecimal(value: Double, locale: Locale): String =
+    formatDecimal(value).replace('.', DecimalFormatSymbols.getInstance(locale).decimalSeparator)
 
 private fun cmToMm(text: String): Double? = parseDecimal(text)?.takeIf { it > 0 }?.let { it * 10 }
 private fun mmToCm(mm: Double?): String = mm?.let { formatDecimal(it / 10) } ?: ""
