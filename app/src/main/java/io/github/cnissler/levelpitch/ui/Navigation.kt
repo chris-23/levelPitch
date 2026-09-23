@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import io.github.cnissler.levelpitch.ui.level.LevelScreen
 import io.github.cnissler.levelpitch.ui.profiles.EquipmentEditScreen
 import io.github.cnissler.levelpitch.ui.profiles.ProfilesScreen
 import io.github.cnissler.levelpitch.ui.profiles.VehicleEditScreen
@@ -21,8 +22,7 @@ fun LevelPitchNavHost() {
     val nav = rememberNavController()
     NavHost(nav, startDestination = HomeRoute) {
         composable<HomeRoute> {
-            // Temporary start screen until the level loop takes over.
-            CalibrationScreen(onBack = {}, onProfiles = { nav.navigate(ProfilesRoute) })
+            LevelScreen(onProfiles = { nav.navigate(ProfilesRoute) }, onCalibration = { nav.navigate(CalibrationRoute) })
         }
         composable<CalibrationRoute> {
             CalibrationScreen(onBack = { nav.popBackStack() }, onProfiles = { nav.navigate(ProfilesRoute) })
