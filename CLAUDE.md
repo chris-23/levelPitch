@@ -8,7 +8,7 @@ Product spec, milestones and open questions:
 ## Working rules
 - Current milestone: M0. Don't start the next milestone without asking.
 - Small, focused commits; `./gradlew testDebugUnitTest` must pass before each commit.
-- `leveling/` is pure Kotlin with no Android dependencies, and every function there has JVM unit tests.
+- The `:leveling` module is pure Kotlin/JVM with no Android dependencies, and every function there has JVM unit tests.
 - Sign conventions: vehicle frame x forward, y left, z up; pitch positive = nose up,
   roll positive = left side up. Tests are the source of truth for these.
 - When a design decision changes, update SPEC.md in the same commit.

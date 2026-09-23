@@ -123,8 +123,12 @@ Storage: local only (kotlinx.serialization JSON or Room; decide at M1).
 ## Architecture & stack
 
 - Kotlin, Jetpack Compose, single activity, ViewModels (same stack as ObjectViz).
-- Packages: `leveling/` (pure math, no Android deps), `sensor/`,
-  `profiles/`, `ui/`, `ar/` (experimental, isolated).
+- Base package `io.github.cnissler.levelpitch`.
+- Gradle module `:leveling`: pure Kotlin/JVM (math and recommendation
+  engine), so the compiler rules out Android deps. `:app` depends on it, and
+  `./gradlew testDebugUnitTest` also runs its tests.
+- Packages in `:app`: `sensor/`, `profiles/`, `ui/`, `ar/` (experimental,
+  isolated).
 - ARCore declared **optional**, so the app installs on any device. Camera mode
   is hidden when Depth is unsupported, and behind an "Experimental" toggle
   for now.

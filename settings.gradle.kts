@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "LevelPitch"
 include(":app")
+include(":leveling")

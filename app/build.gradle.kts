@@ -43,6 +43,8 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":leveling"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -54,4 +56,10 @@ dependencies {
 
     testImplementation(libs.junit)
     debugImplementation(libs.androidx.compose.ui.tooling)
+}
+
+// Keep `./gradlew testDebugUnitTest` the single test command: it also runs the
+// pure-Kotlin :leveling tests, which live in a JVM module without that task.
+tasks.matching { it.name == "testDebugUnitTest" }.configureEach {
+    dependsOn(":leveling:test")
 }
