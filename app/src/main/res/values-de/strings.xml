@@ -30,7 +30,7 @@
     <string name="zero_hint">Setz den Nullpunkt nur, wenn das Fahrzeug sicher waagerecht steht, z. B. mit einer Wasserwaage am Fahrgestell geprüft.</string>
     <string name="set_zero">Nullpunkt setzen</string>
     <string name="clear_zero">Nullpunkt löschen</string>
-    <string name="safety_line">Handbremse anziehen und UnterlegAuffahrkeile anlegen, bevor du das Fahrzeug verlässt.</string>
+    <string name="safety_line">Handbremse anziehen und Unterlegkeile anlegen, bevor du das Fahrzeug verlässt.</string>
     <string name="back">Zurück</string>
     <string name="save">Speichern</string>
     <string name="delete">Löschen</string>
@@ -105,11 +105,11 @@
     <string name="hitch_raise">Bugrad: Deichsel um %1$s cm anheben (Bugrad herunterkurbeln)</string>
     <string name="hitch_lower">Bugrad: Deichsel um %1$s cm absenken (Bugrad hochkurbeln)</string>
     <string name="caravan_step_side">Quer ausrichten (noch angekuppelt)</string>
-    <string name="caravan_step_unhitch">Handbremse, UnterlegAuffahrkeile, abkuppeln</string>
+    <string name="caravan_step_unhitch">Handbremse, Unterlegkeile, abkuppeln</string>
     <string name="caravan_step_front">Längs ausrichten mit dem Bugrad</string>
     <string name="caravan_step_steadies">Kurbelstützen herunterdrehen</string>
     <string name="caravan_hint_side">Miss, heb die tiefere Seite wie angezeigt an (auf die Auffahrkeile ziehen oder mit Heber oder Ausgleicher), dann miss erneut. Vorerst zählt nur quer; das Zugfahrzeug neigt den Wohnwagen noch in Längsrichtung.</string>
-    <string name="caravan_hint_unhitch">Quer ist waagerecht. Zieh die Handbremse an, leg UnterlegAuffahrkeile an und kuppel ab, sodass der Wohnwagen auf dem Bugrad steht.</string>
+    <string name="caravan_hint_unhitch">Quer ist waagerecht. Zieh die Handbremse an, leg Unterlegkeile an und kuppel ab, sodass der Wohnwagen auf dem Bugrad steht.</string>
     <string name="caravan_hint_front">Miss, kurbel das Bugrad wie angezeigt, dann miss erneut.</string>
     <string name="caravan_hint_steadies">Waagerecht. Dreh die Kurbelstützen herunter, zuerst hinten, bis sie fest auf dem Boden stehen. Sie stützen nur ab: Heb oder richte den Wohnwagen nie mit ihnen aus.</string>
     <string name="caravan_unhitched">Abgekuppelt</string>
@@ -143,7 +143,7 @@
     <string name="caravan_size_tandem">Etwa %1$s m</string>
     <string name="caravan_size_help">Geschätzte Werte, gut genug für den Anfang: Kleine Fehler gleicht das erneute Messen aus. Genauer wird es, wenn du nachmisst: die Spurweite von Reifenmitte zu Reifenmitte und den Abstand von der Kupplungskugel zur Radnabe.</string>
     <string name="equipment_kind">Art</string>
-    <string name="kind_stepped">StufenAuffahrkeile</string>
+    <string name="kind_stepped">Auffahrkeile mit Stufen</string>
     <string name="kind_continuous">Stufenlos (Auffahrkeil ohne Stufen, Seitenwagenheber, Luftkissen)</string>
     <string name="field_max_lift">Maximaler Hub (cm)</string>
     <string name="field_max_lift_help">Wie weit ein Gerät ein Rad (oder eine Seite) anheben kann.</string>
