@@ -9,6 +9,9 @@ fixed next.
 **Safety first:** handbrake on and wheels chocked before you leave the
 vehicle. Never lift a caravan with its corner steadies.
 
+The app follows your phone's language (English or German); ⋮ → *Settings*
+switches it. German guide: [TESTING.de.md](TESTING.de.md).
+
 ## 1. Set up (once, 5 minutes)
 
 1. **Vehicle:** menu ⋮ → *Vehicles & wedges* → *Add vehicle*.
@@ -70,4 +73,3 @@ After levelling at a pitch:
   tilt that isn't there. That's why it should rest against a straight edge.
 - Caravan dimensions from the size picker are estimates. Measuring
   improves the advice a little.
-- English and German only.
