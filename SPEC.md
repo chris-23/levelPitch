@@ -64,6 +64,19 @@ misalignment and the sensor bias.
 
 Safety line in the UI: handbrake and chocks before leaving the vehicle.
 
+**F3 for caravans.** Caravans follow the usual procedure owners use (research
+Sept 2026: Practical Caravan, Caravan Guard, PiNCAMP, maker manuals), shown
+as a four-step checklist:
+1. *Side to side, still hitched:* wedges under the low side, pulled on by
+   the tow car or a mover. Only roll counts; pitch includes the tow car.
+2. *Handbrake, chocks, unhitch* (user taps "Unhitched"; the session stores
+   how many measurements came before, so only later ones count for pitch).
+3. *Front to back with the jockey wheel:* measure, "raise/lower the hitch
+   by X cm", measure again.
+4. *Lower the corner steadies* until they touch firmly, rear first. They
+   only stabilise; manuals say never to lift or level with them, so the
+   app never calculates with them.
+
 **F4 Camera scan (experimental).**
 1. Stand in front of or behind the vehicle so both wheels of one axle are in
    view. The ARCore session starts and detects the ground.

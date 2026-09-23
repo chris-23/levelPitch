@@ -1,5 +1,6 @@
 package io.github.cnissler.levelpitch.ui.level
 
+import io.github.cnissler.levelpitch.leveling.Caravan
 import io.github.cnissler.levelpitch.leveling.Equipment
 import io.github.cnissler.levelpitch.leveling.Measurement
 import io.github.cnissler.levelpitch.leveling.PhoneOrientation
@@ -16,6 +17,7 @@ import io.github.cnissler.levelpitch.profiles.EquipmentProfile
 import io.github.cnissler.levelpitch.profiles.LevelSession
 import io.github.cnissler.levelpitch.profiles.VehicleProfile
 import io.github.cnissler.levelpitch.profiles.normalized
+import kotlin.math.abs
 
 /** What the level screen can work with. */
 sealed interface Setup {
@@ -50,6 +52,24 @@ data class LevelPlan(
     val applied: Boolean,
 )
 
+/**
+ * Where a caravan is in the usual procedure: level side to side with wedges while hitched, chock
+ * and unhitch, level front to back with the jockey wheel, then lower the corner steadies (which
+ * only stabilise; they must never lift the caravan).
+ */
+enum class CaravanStep { SIDE_TO_SIDE, UNHITCH, FRONT_TO_BACK, STEADIES }
+
+fun caravanStep(session: LevelSession?, plan: LevelPlan?, toleranceDeg: Double): CaravanStep {
+    val current = plan?.takeIf { !it.stale }
+    if (session == null || !session.unhitched) {
+        // Hitched: only roll counts; pitch includes the tow car.
+        val rollLevel = current != null && abs(current.tilt.rollDeg) <= toleranceDeg
+        return if (rollLevel) CaravanStep.UNHITCH else CaravanStep.SIDE_TO_SIDE
+    }
+    val levelSinceUnhitching = session.measuredSinceUnhitching && current?.isLevel == true
+    return if (levelSinceUnhitching) CaravanStep.STEADIES else CaravanStep.FRONT_TO_BACK
+}
+
 data class LevelUiState(
     val setup: Setup,
     val sensorAvailable: Boolean,
@@ -61,6 +81,10 @@ data class LevelUiState(
     val running: Boolean = false,
     /** The last measurement attempt, if it was rejected. */
     val rejected: WindowResult? = null,
+    /** Caravans only. */
+    val caravanStep: CaravanStep? = null,
+    /** Caravans: a measurement exists from after unhitching, so the jockey advice applies. */
+    val measuredSinceUnhitching: Boolean = false,
 )
 
 fun levelUiState(data: AppData, sensorAvailable: Boolean, running: Boolean, rejected: WindowResult?): LevelUiState {
@@ -72,15 +96,18 @@ fun levelUiState(data: AppData, sensorAvailable: Boolean, running: Boolean, reje
         return LevelUiState(Setup.Invalid(e.message), sensorAvailable)
     }
     val session = data.activeSession
+    val plan = session?.let { planFor(setup, it) }
     return LevelUiState(
         setup = setup,
         sensorAvailable = sensorAvailable,
         orientation = vp.phoneOrientation,
         calibrated = vp.zero != null,
         wedgeState = session?.wedgeState.orEmpty(),
-        plan = session?.let { planFor(setup, it) },
+        plan = plan,
         running = running,
         rejected = rejected,
+        caravanStep = if (setup.vehicle is Caravan) caravanStep(session, plan, vp.toleranceDeg) else null,
+        measuredSinceUnhitching = session?.measuredSinceUnhitching == true,
     )
 }
 

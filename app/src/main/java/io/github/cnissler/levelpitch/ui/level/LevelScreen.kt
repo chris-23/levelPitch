@@ -2,9 +2,11 @@ package io.github.cnissler.levelpitch.ui.level
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -21,12 +23,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -135,8 +139,19 @@ private fun LevelContent(state: LevelUiState, setup: Setup.Ready, vm: LevelViewM
 
     MeasurementCard(state, setup)
 
-    val showTargets = plan != null && !plan.isLevel && !plan.stale
-    if (plan != null && showTargets) PlanCard(plan, setup, vm::placeRecommended)
+    val step = state.caravanStep
+    if (step != null) CaravanSteps(step, onUnhitched = { vm.setUnhitched(it) })
+
+    // Caravans: wedges while hitched; after unhitching only a fresh measurement gives jockey advice.
+    val planApplies = when (step) {
+        null, CaravanStep.SIDE_TO_SIDE -> true
+        CaravanStep.FRONT_TO_BACK -> state.measuredSinceUnhitching
+        CaravanStep.UNHITCH, CaravanStep.STEADIES -> false
+    }
+    val showTargets = plan != null && !plan.isLevel && !plan.stale && planApplies
+    if (plan != null && showTargets) {
+        PlanCard(plan, setup, showJockey = step == CaravanStep.FRONT_TO_BACK, onPlaced = vm::placeRecommended)
+    }
 
     VehicleScene(
         vehicle = setup.vehicle,
@@ -176,20 +191,20 @@ private fun MeasurementCard(state: LevelUiState, setup: Setup.Ready) {
 }
 
 @Composable
-private fun PlanCard(plan: LevelPlan, setup: Setup.Ready, onPlaced: () -> Unit) {
+private fun PlanCard(plan: LevelPlan, setup: Setup.Ready, showJockey: Boolean, onPlaced: () -> Unit) {
     val rec = plan.recommendation
     val tolerance = setup.vehicleProfile.toleranceDeg
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.plan_title), style = MaterialTheme.typography.titleMedium)
-            if (plan.changes.isEmpty()) Text(stringResource(R.string.no_wedge_changes))
+            if (plan.changes.isEmpty() && !showJockey) Text(stringResource(R.string.no_wedge_changes))
             plan.changes.forEach { Text(changeText(it, setup), style = MaterialTheme.typography.bodyLarge) }
 
             val hitch = rec.hitchAdjustMm
-            if (setup.vehicle is Caravan && hitch != null && abs(hitch) >= MIN_HITCH_ADJUST_MM) {
+            if (showJockey && hitch != null && abs(hitch) >= MIN_HITCH_ADJUST_MM) {
                 Text(
                     stringResource(if (hitch > 0) R.string.hitch_raise else R.string.hitch_lower, cm(abs(hitch))),
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleMedium,
                 )
             }
 
@@ -215,6 +230,61 @@ private fun changeText(change: WedgeChange, setup: Setup.Ready): String {
         change.fromStep == 0 -> stringResource(R.string.change_add, where, change.toStep, cm(mm))
         else -> stringResource(R.string.change_move, where, change.fromStep, change.toStep, cm(mm))
     }
+}
+
+/** The usual caravan procedure as a checklist, with the current step expanded. */
+@Composable
+private fun CaravanSteps(step: CaravanStep, onUnhitched: (Boolean) -> Unit) {
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            CaravanStep.entries.forEach { s ->
+                val done = s.ordinal < step.ordinal
+                val current = s == step
+                Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        if (done) "✓" else "${s.ordinal + 1}",
+                        fontWeight = FontWeight.Bold,
+                        color = if (done || current) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.width(20.dp),
+                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(
+                            stringResource(s.title()),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = if (current) FontWeight.Bold else FontWeight.Normal,
+                            color = if (current) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
+                        )
+                        if (current) {
+                            Text(stringResource(s.hint()), style = MaterialTheme.typography.bodyMedium)
+                            when (s) {
+                                CaravanStep.UNHITCH -> Button(onClick = { onUnhitched(true) }) {
+                                    Text(stringResource(R.string.caravan_unhitched))
+                                }
+                                CaravanStep.FRONT_TO_BACK -> TextButton(onClick = { onUnhitched(false) }) {
+                                    Text(stringResource(R.string.caravan_still_hitched))
+                                }
+                                else -> Unit
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun CaravanStep.title(): Int = when (this) {
+    CaravanStep.SIDE_TO_SIDE -> R.string.caravan_step_side
+    CaravanStep.UNHITCH -> R.string.caravan_step_unhitch
+    CaravanStep.FRONT_TO_BACK -> R.string.caravan_step_front
+    CaravanStep.STEADIES -> R.string.caravan_step_steadies
+}
+
+private fun CaravanStep.hint(): Int = when (this) {
+    CaravanStep.SIDE_TO_SIDE -> R.string.caravan_hint_side
+    CaravanStep.UNHITCH -> R.string.caravan_hint_unhitch
+    CaravanStep.FRONT_TO_BACK -> R.string.caravan_hint_front
+    CaravanStep.STEADIES -> R.string.caravan_hint_steadies
 }
 
 private fun PhoneOrientation.placement(): Int = when (this) {

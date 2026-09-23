@@ -104,6 +104,43 @@ class LevelStateTest {
         assertTrue(plan.recommendation.hitchAdjustMm!! > 0)
     }
 
+    private val caravan = VehicleProfile("c", "Caravan", VehicleType.CARAVAN_SINGLE, trackMm = 2000.0, hitchToAxleMm = 4000.0)
+    private val caravanBase = AppData().upsertVehicle(caravan).upsertEquipment(wedges)
+
+    @Test
+    fun motorhomesHaveNoCaravanSteps() {
+        assertNull(state(base.recordMeasurement(measured(Tilt(1.0, 0.0)))).caravanStep)
+    }
+
+    @Test
+    fun caravanStartsSideToSideAndIgnoresPitchWhileHitched() {
+        assertEquals(CaravanStep.SIDE_TO_SIDE, state(caravanBase).caravanStep)
+        assertEquals(CaravanStep.SIDE_TO_SIDE, state(caravanBase.recordMeasurement(measured(Tilt(0.0, 1.0)))).caravanStep)
+        // Roll level, pitch way off because of the tow car: time to unhitch.
+        assertEquals(CaravanStep.UNHITCH, state(caravanBase.recordMeasurement(measured(Tilt(3.0, 0.2)))).caravanStep)
+    }
+
+    @Test
+    fun wedgesPlacedButNotMeasuredStaySideToSide() {
+        val d = caravanBase.recordMeasurement(measured(Tilt(0.0, 1.0)))
+        val placed = d.setWedgeState(state(d).plan!!.recommendation.steps)
+        assertEquals(CaravanStep.SIDE_TO_SIDE, state(placed).caravanStep)
+    }
+
+    @Test
+    fun afterUnhitchingOnlyNewMeasurementsCount() {
+        val level = caravanBase.recordMeasurement(measured(Tilt(0.1, 0.1)))
+        val unhitched = level.setUnhitched(true)
+        // The earlier (hitched) measurement was level, but it doesn't count for the jockey wheel.
+        assertEquals(CaravanStep.FRONT_TO_BACK, state(unhitched).caravanStep)
+        assertEquals(false, state(unhitched).measuredSinceUnhitching)
+        val noseUp = unhitched.recordMeasurement(measured(Tilt(1.2, 0.1)))
+        assertEquals(CaravanStep.FRONT_TO_BACK, state(noseUp).caravanStep)
+        assertTrue(state(noseUp).plan!!.recommendation.hitchAdjustMm!! < 0)
+        val done = noseUp.recordMeasurement(measured(Tilt(0.1, 0.1)))
+        assertEquals(CaravanStep.STEADIES, state(done).caravanStep)
+    }
+
     @Test
     fun wedgeStateFollowsTheActiveSession() {
         val d = base.setWedgeState(mapOf(Wheel.FRONT_LEFT to 1))

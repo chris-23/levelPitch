@@ -87,6 +87,18 @@ class AppDataTest {
     }
 
     @Test
+    fun unhitchingOnlyCountsLaterMeasurements() {
+        val hitched = base.recordMeasurement(m)
+        assertEquals(false, hitched.activeSession!!.unhitched)
+        val unhitched = hitched.setUnhitched(true)
+        assertEquals(true, unhitched.activeSession!!.unhitched)
+        assertEquals(false, unhitched.activeSession!!.measuredSinceUnhitching)
+        assertEquals(true, unhitched.recordMeasurement(m).activeSession!!.measuredSinceUnhitching)
+        assertEquals(false, unhitched.setUnhitched(false).activeSession!!.unhitched)
+        assertEquals(false, unhitched.newSession("n").activeSession!!.unhitched)
+    }
+
+    @Test
     fun noSessionWithoutProfiles() {
         assertEquals(AppData(), AppData().recordMeasurement(m))
     }

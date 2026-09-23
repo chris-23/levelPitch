@@ -74,6 +74,9 @@ class LevelViewModel(app: LevelPitchApp) : ViewModel() {
         repo.update { it.setWedgeState(setup.vehicle.withStep(it.activeSession?.wedgeState.orEmpty(), wheel, step)) }
     }
 
+    /** Caravans: the caravan now stands on its jockey wheel (or, with false, is hitched again). */
+    fun setUnhitched(unhitched: Boolean) = repo.update { it.setUnhitched(unhitched) }
+
     /** Start over at a new pitch: no wedges, no measurements. */
     fun newPitch() {
         rejected.value = null

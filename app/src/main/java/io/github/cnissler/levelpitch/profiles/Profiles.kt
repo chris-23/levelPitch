@@ -102,8 +102,18 @@ data class LevelSession(
     val equipmentId: String,
     val wedgeState: Map<Wheel, Int> = emptyMap(),
     val measurements: List<MeasurementRecord> = emptyList(),
+    /**
+     * Caravans: number of measurements taken before the caravan was unhitched, or null while it is
+     * still hitched. Pitch measured while hitched includes the tow car, so only later ones count.
+     */
+    val unhitchedAfter: Int? = null,
 ) {
     val lastMeasurement: MeasurementRecord? get() = measurements.lastOrNull()
+
+    val unhitched: Boolean get() = unhitchedAfter != null
+
+    /** A measurement exists from after unhitching. */
+    val measuredSinceUnhitching: Boolean get() = unhitchedAfter?.let { measurements.size > it } ?: false
 
     /** True if wedges changed since the last measurement, so it no longer describes the vehicle. */
     val wedgesChangedSinceMeasurement: Boolean

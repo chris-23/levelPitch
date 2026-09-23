@@ -88,6 +88,10 @@ data class AppData(
 
     fun setWedgeState(state: WedgeState): AppData = updateSession { it.copy(wedgeState = normalized(state)) }
 
+    /** Caravans: marks the caravan unhitched (or hitched again with false). */
+    fun setUnhitched(unhitched: Boolean): AppData =
+        updateSession { it.copy(unhitchedAfter = if (unhitched) it.measurements.size else null) }
+
     private fun updateActiveVehicle(change: (VehicleProfile) -> VehicleProfile): AppData {
         val v = activeVehicle ?: return this
         return copy(vehicles = vehicles.upsert(change(v)) { it.id })
