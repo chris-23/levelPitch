@@ -147,9 +147,9 @@ and the residual after levelling. Logs export as JSON for offline analysis
   is not flat screen-up (> 15°), if single samples scatter too much (RMS
   > 0.5°, vibration) or if a quarter-window mean drifts from the overall
   mean (> 0.1°, rocking). Thresholds are starting values for the bench test.
-- Until profiles exist (M3), orientation and one zero per orientation are
-  kept in SharedPreferences; the zero depends on orientation because the
-  sensor bias turns with the phone.
+- Orientation and one zero per orientation are part of the vehicle profile
+  (M3); the zero depends on orientation because the sensor bias turns with
+  the phone.
 
 ## Data model
 
@@ -182,8 +182,10 @@ the single zeroOffset.
 - Gradle module `:leveling`: pure Kotlin/JVM (math and recommendation
   engine), so the compiler rules out Android deps. `:app` depends on it, and
   `./gradlew testDebugUnitTest` also runs its tests.
-- Packages in `:app`: `sensor/`, `profiles/`, `ui/`, `ar/` (experimental,
-  isolated).
+- Packages in `:app`: `sensor/`, `profiles/` (model + JSON repository),
+  `ui/` (level loop, `profiles/` editors, calibration; navigation-compose),
+  `ar/` (experimental, isolated). Screen logic that decides what to show
+  (`levelUiState`, form parsing) is pure Kotlin with JVM tests.
 - ARCore declared **optional**, so the app installs on any device. Camera mode
   is hidden when Depth is unsupported, and behind an "Experimental" toggle
   for now.

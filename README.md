@@ -5,8 +5,9 @@ vehicle's tilt with the phone's accelerometer and recommends a wedge step per
 wheel. An experimental camera mode estimates ground heights with ARCore depth.
 See [SPEC.md](SPEC.md) for the product spec and milestones.
 
-Status: **M2** (sensor measurement). The app measures pitch/roll with zero
-calibration; bench protocol in [docs/bench-validation.md](docs/bench-validation.md).
+Status: **M3** (usable level loop). Set up vehicles and wedges, calibrate the
+zero, then measure → place the recommended wedges → measure again until
+level. Sensor bench results are in [docs/bench-validation.md](docs/bench-validation.md).
 
 ## Requirements
 
@@ -30,8 +31,9 @@ push and pull request.
 
 | Path | Contents |
 |---|---|
-| `app/` | Android app: Compose UI, and later sensor, profiles and AR code |
+| `app/` | Android app: Compose UI (level loop, profiles, calibration), accelerometer sampling, JSON profile store |
 | `leveling/` | Pure Kotlin/JVM module: levelling math and recommendation engine, no Android deps |
+| `docs/` | Bench validation protocol and results |
 
 ## Conventions
 
