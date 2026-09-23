@@ -33,7 +33,7 @@ push and pull request.
 |---|---|
 | `app/` | Android app: Compose UI (level loop, profiles, calibration), accelerometer sampling, JSON profile store |
 | `leveling/` | Pure Kotlin/JVM module: levelling math and recommendation engine, no Android deps |
-| `docs/` | Bench validation protocol and results |
+| `docs/` | Tester guide ([TESTING.md](docs/TESTING.md)), bench validation protocol and results |
 | `tools/icon/` | Generator for the pixel-art launcher icon (`python3 tools/icon/make_icon.py`) |
 
 ## Conventions
