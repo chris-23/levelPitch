@@ -20,3 +20,8 @@ build/
 # Tool virtualenvs and downloads
 tools/.venv*
 tools/build/
+
+# Release signing secrets
+keystore.properties
+*.jks
+*.keystore

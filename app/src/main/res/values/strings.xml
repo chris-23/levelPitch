@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">LevelPitch</string>
+    <string name="app_name" translatable="false">LevelPitch</string>
     <string name="home_intro">Lay the phone flat on your measuring surface, aligned with its edge, then measure.</string>
     <string name="orientation_label">Phone top edge points to</string>
     <string name="orientation_front">Front</string>
