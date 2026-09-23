@@ -5,7 +5,8 @@ vehicle's tilt with the phone's accelerometer and recommends a wedge step per
 wheel. An experimental camera mode estimates ground heights with ARCore depth.
 See [SPEC.md](SPEC.md) for the product spec and milestones.
 
-Status: **M0** (project skeleton). The app shows a placeholder screen.
+Status: **M2** (sensor measurement). The app measures pitch/roll with zero
+calibration; bench protocol in [docs/bench-validation.md](docs/bench-validation.md).
 
 ## Requirements
 
