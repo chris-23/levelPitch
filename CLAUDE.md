@@ -14,5 +14,6 @@ Product spec, milestones and open questions:
 - When a design decision changes, update SPEC.md in the same commit.
 
 ## Reference code
-`reference/` contains ar/ files from ObjectViz. Adapt, don't copy blindly;
-see the "Differences to revisit" note in SPEC.md.
+`reference/` (local only, gitignored) holds ObjectViz ar/ files, copied from the
+repair_agent repo: `3d_visualizer_app/app/src/main/java/com/objectviz/ar/`.
+Adapt, don't copy blindly; see the "Differences to revisit" note in SPEC.md.

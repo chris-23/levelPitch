@@ -14,6 +14,9 @@ build/
 *.onnx
 *.bin
 
+# Local-only copy of ObjectViz AR sources (see CLAUDE.md)
+/reference/
+
 # Tool virtualenvs and downloads
 tools/.venv*
 tools/build/

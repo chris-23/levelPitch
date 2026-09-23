@@ -31,7 +31,6 @@ push and pull request.
 |---|---|
 | `app/` | Android app: Compose UI, and later sensor, profiles and AR code |
 | `leveling/` | Pure Kotlin/JVM module: levelling math and recommendation engine, no Android deps |
-| `reference/` | ObjectViz AR sources to adapt for camera mode (not compiled) |
 
 ## Conventions
 
