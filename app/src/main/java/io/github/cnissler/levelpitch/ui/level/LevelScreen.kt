@@ -1,5 +1,8 @@
 package io.github.cnissler.levelpitch.ui.level
 
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -46,6 +50,19 @@ import io.github.cnissler.levelpitch.ui.appViewModel
 import io.github.cnissler.levelpitch.ui.profiles.formatDecimal
 import kotlin.math.abs
 
+/** Hands the session report to the Android share sheet; the app itself has no network access. */
+private fun shareSession(context: Context, vm: LevelViewModel) {
+    val version = context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "?"
+    val device = "${Build.MANUFACTURER} ${Build.MODEL}, Android ${Build.VERSION.RELEASE}"
+    val json = vm.sessionReport(version, device) ?: return
+    val send = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_subject))
+        putExtra(Intent.EXTRA_TEXT, json)
+    }
+    context.startActivity(Intent.createChooser(send, context.getString(R.string.share_session)))
+}
+
 /** Below this, a jockey wheel adjustment isn't worth mentioning. */
 private const val MIN_HITCH_ADJUST_MM = 5.0
 
@@ -56,6 +73,7 @@ fun LevelScreen(onProfiles: () -> Unit, onCalibration: () -> Unit) {
     val state by vm.state.collectAsStateWithLifecycle()
     val ready = state.setup as? Setup.Ready
     var menu by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -75,6 +93,14 @@ fun LevelScreen(onProfiles: () -> Unit, onCalibration: () -> Unit) {
                             menu = false
                             vm.newPitch()
                         })
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.share_session)) },
+                            enabled = state.plan != null,
+                            onClick = {
+                                menu = false
+                                shareSession(context, vm)
+                            },
+                        )
                         DropdownMenuItem(text = { Text(stringResource(R.string.profiles)) }, onClick = {
                             menu = false
                             onProfiles()

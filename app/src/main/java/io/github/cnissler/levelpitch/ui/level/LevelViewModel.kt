@@ -7,6 +7,7 @@ import io.github.cnissler.levelpitch.leveling.Wheel
 import io.github.cnissler.levelpitch.leveling.WindowResult
 import io.github.cnissler.levelpitch.leveling.relativeTo
 import io.github.cnissler.levelpitch.profiles.MeasurementRecord
+import io.github.cnissler.levelpitch.profiles.sessionReport
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -78,6 +79,10 @@ class LevelViewModel(app: LevelPitchApp) : ViewModel() {
 
     /** Caravans: the caravan now stands on its jockey wheel (or, with false, is hitched again). */
     fun setUnhitched(unhitched: Boolean) = repo.update { it.setUnhitched(unhitched) }
+
+    /** JSON of the setup and this pitch's measurements for a tester to send back, or null if nothing measured. */
+    fun sessionReport(appVersion: String, device: String): String? =
+        sessionReport(repo.data.value, appVersion, device, System.currentTimeMillis())
 
     /** Start over at a new pitch: no wedges, no measurements. */
     fun newPitch() {
