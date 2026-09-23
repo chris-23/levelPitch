@@ -1,0 +1,2 @@
+# Windows batch scripts need CRLF; everything else is normalized to LF.
+*.bat text eol=crlf
