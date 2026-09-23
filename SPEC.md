@@ -220,11 +220,12 @@ Storage: local only (kotlinx.serialization JSON or Room; decide at M1).
   Offsets that turn with the phone are 0.3–0.7°, so one zero *per
   orientation* is required. A flip calibration is not needed. Putting the
   phone back against a stop repeats within ≈ 0.01°.
-- **Roll crosstalk from a turned phone** (open, main simple-mode risk): on
+- **Roll crosstalk from a turned phone** (open, main simple-mode risk;
+  mitigation parked on 2026-09-23 and not part of M3, revisit after M3): on
   the bench, pure pitch also read as roll, 3–9 % below 5° and 0–20 % at 10°
   depending on orientation, which fits the phone lying turned by up to ~11°.
   At a typical 2–3° tilt that is 0.2–0.6° of false roll, above the 0.25°
-  target. A zero cannot remove it. Options, to decide when planning M3:
+  target. A zero cannot remove it. Options:
   (a) UI guidance: a fixed spot with a stop, phone edge along it;
   (b) learn the turn from a known pure-pitch change: when both wheels of one
   axle go up by the same step, the measured change should be pure pitch,
