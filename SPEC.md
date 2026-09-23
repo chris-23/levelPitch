@@ -215,15 +215,21 @@ Storage: local only (kotlinx.serialization JSON or Room; decide at M1).
 - ~~Accelerometer bias and noise on the Pixel: does zero calibration alone
   reach the target, or is a flip calibration needed?~~ Answered by the M2
   bench test (docs/bench-validation.md, rough setup): noise 0.04° per
-  sample, drift ≤ 0.01°; with a zero, 1–5° read within ±0.17° pitch and
-  ≤ 0.18° roll crosstalk, with no trend with angle (setup error, not scale).
+  sample, drift ≤ 0.01°; with a zero, 1–5° pitch reads within ±0.17° with
+  no trend over angle, and ~10° reads 9.95–10.31° in all four orientations.
   Offsets that turn with the phone are 0.3–0.7°, so one zero *per
-  orientation* is required. A flip calibration is not needed.
-- Placement repeatability: the level-board readings in the Rear orientation
-  differed by 0.5° in roll between two sessions, probably because the phone
-  rocks on its back or lands in a different spot. In use, the phone must go
-  back to the spot where the zero was set. The M3 UI should say so; a
-  pick-up/put-back repeatability test (bench step 5) is still to do.
+  orientation* is required. A flip calibration is not needed. Putting the
+  phone back against a stop repeats within ≈ 0.01°.
+- **Roll crosstalk from a turned phone** (open, main simple-mode risk): on
+  the bench, pure pitch also read as roll, 3–9 % below 5° and 0–20 % at 10°
+  depending on orientation, which fits the phone lying turned by up to ~11°.
+  At a typical 2–3° tilt that is 0.2–0.6° of false roll, above the 0.25°
+  target. A zero cannot remove it. Options, to decide when planning M3:
+  (a) UI guidance: a fixed spot with a stop, phone edge along it;
+  (b) learn the turn from a known pure-pitch change: when both wheels of one
+  axle go up by the same step, the measured change should be pure pitch,
+  and its roll share gives the turn angle, which is then rotated out
+  (automatic in the level loop, or as a guided step after Set zero).
 - ARCore depth accuracy on grass/gravel at 1–4 m.
 - Tyre contact-point estimation: the contact patch is occluded; how well does
   mask bottom + local ground plane approximate it?
