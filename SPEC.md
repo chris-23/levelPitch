@@ -120,6 +120,17 @@ and the residual after levelling. Logs export as JSON for offline analysis
   measurement cannot see chassis twist, so twist from the current wedges is
   not recovered.
 
+## Sensor measurement (simple mode)
+
+- Phone lies screen-up; `PhoneOrientation` says where its top edge points
+  (front/left/rear/right, 0/90/180/270° counter-clockwise from above) and
+  maps Android sensor axes (x right edge, y top edge, z out of screen) to
+  the vehicle frame.
+- Angles are what a spirit level along each vehicle axis shows:
+  pitch = asin(up_x), roll = asin(up_y) of the unit up vector (the mean
+  accelerometer reading at rest). The engine's tan form differs by
+  1/cos(angle) in height (0.4 % at 5°), which is negligible.
+
 ## Data model
 
 ```
