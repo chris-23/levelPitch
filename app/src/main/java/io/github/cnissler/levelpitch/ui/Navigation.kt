@@ -13,6 +13,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable object HomeRoute
 @Serializable object CalibrationRoute
+@Serializable object SettingsRoute
 @Serializable object ProfilesRoute
 @Serializable data class VehicleEditRoute(val id: String? = null)
 @Serializable data class EquipmentEditRoute(val id: String? = null)
@@ -22,7 +23,14 @@ fun LevelPitchNavHost() {
     val nav = rememberNavController()
     NavHost(nav, startDestination = HomeRoute) {
         composable<HomeRoute> {
-            LevelScreen(onProfiles = { nav.navigate(ProfilesRoute) }, onCalibration = { nav.navigate(CalibrationRoute) })
+            LevelScreen(
+                onProfiles = { nav.navigate(ProfilesRoute) },
+                onCalibration = { nav.navigate(CalibrationRoute) },
+                onSettings = { nav.navigate(SettingsRoute) },
+            )
+        }
+        composable<SettingsRoute> {
+            SettingsScreen(onBack = { nav.popBackStack() })
         }
         composable<CalibrationRoute> {
             CalibrationScreen(onBack = { nav.popBackStack() }, onProfiles = { nav.navigate(ProfilesRoute) })

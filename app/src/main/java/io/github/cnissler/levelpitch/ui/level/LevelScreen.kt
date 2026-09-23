@@ -68,7 +68,7 @@ private const val MIN_HITCH_ADJUST_MM = 5.0
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LevelScreen(onProfiles: () -> Unit, onCalibration: () -> Unit) {
+fun LevelScreen(onProfiles: () -> Unit, onCalibration: () -> Unit, onSettings: () -> Unit) {
     val vm = appViewModel { LevelViewModel(it) }
     val state by vm.state.collectAsStateWithLifecycle()
     val ready = state.setup as? Setup.Ready
@@ -108,6 +108,10 @@ fun LevelScreen(onProfiles: () -> Unit, onCalibration: () -> Unit) {
                         DropdownMenuItem(text = { Text(stringResource(R.string.calibration)) }, onClick = {
                             menu = false
                             onCalibration()
+                        })
+                        DropdownMenuItem(text = { Text(stringResource(R.string.settings)) }, onClick = {
+                            menu = false
+                            onSettings()
                         })
                     }
                 },

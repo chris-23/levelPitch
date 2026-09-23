@@ -57,6 +57,10 @@ android {
     buildFeatures {
         compose = true
     }
+    androidResources {
+        // Lists the translated languages for Android 13+'s per-app language settings.
+        generateLocaleConfig = true
+    }
 }
 
 kotlin {
@@ -73,6 +77,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.appcompat)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)

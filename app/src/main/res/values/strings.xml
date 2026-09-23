@@ -79,6 +79,11 @@
     <string name="delete_wedge_set_text">A levelling session using them is removed too.</string>
     <string name="more">More</string>
     <string name="new_pitch">New pitch</string>
+    <string name="settings">Settings</string>
+    <string name="language">Language</string>
+    <string name="language_system">System default</string>
+    <string name="language_english" translatable="false">English</string>
+    <string name="language_german" translatable="false">Deutsch</string>
     <string name="share_session">Share session data</string>
     <string name="share_subject">LevelPitch session data</string>
     <string name="measure_again">Measure again</string>
