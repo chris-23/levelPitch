@@ -20,6 +20,12 @@ sealed interface Vehicle {
     /** Wheels that always get the same wedge step (one group per independently raised position). */
     val raiseGroups: List<List<Wheel>>
 
+    /** [state] with [wheel] and the wheels raised together with it set to [step]. */
+    fun withStep(state: Map<Wheel, Int>, wheel: Wheel, step: Int): Map<Wheel, Int> {
+        val group = requireNotNull(raiseGroups.find { wheel in it }) { "$wheel is not a wheel of this vehicle" }
+        return state + group.associateWith { step }
+    }
+
     /** Ground heights at the wheel contact points implied by [tilt], in mm relative to the origin. */
     fun contactHeightsMm(tilt: Tilt): Map<Wheel, Double> =
         wheels.mapValues { (_, p) -> tilt.heightAtMm(p.xMm, p.yMm) }

@@ -72,6 +72,25 @@ class VehicleTest {
         assertEquals(0.0, h.getValue(Wheel.RIGHT), 1e-12)
     }
 
+    @Test
+    fun withStepSetsTheWholeRaiseGroup() {
+        val tandem = TandemCaravan(2000.0, 900.0, 4000.0)
+        assertEquals(
+            mapOf(Wheel.FRONT_LEFT to 2, Wheel.REAR_LEFT to 2),
+            tandem.withStep(emptyMap(), Wheel.REAR_LEFT, 2),
+        )
+        val van = Motorhome(3500.0, 1600.0)
+        assertEquals(
+            mapOf(Wheel.FRONT_LEFT to 1, Wheel.REAR_LEFT to 0),
+            van.withStep(mapOf(Wheel.FRONT_LEFT to 1, Wheel.REAR_LEFT to 3), Wheel.REAR_LEFT, 0),
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun withStepRejectsForeignWheels() {
+        Motorhome(3500.0, 1600.0).withStep(emptyMap(), Wheel.LEFT, 1)
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun rejectsNonPositiveDimensions() {
         Motorhome(wheelbaseMm = 0.0, trackMm = 1600.0)

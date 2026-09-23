@@ -23,16 +23,28 @@ data class AppData(
     val activeSession: LevelSession?
         get() = session?.takeIf { it.vehicleId == activeVehicleId && it.equipmentId == activeEquipmentId }
 
-    /** Adds or replaces a vehicle; the first one becomes active. */
-    fun upsertVehicle(v: VehicleProfile): AppData = copy(
-        vehicles = vehicles.upsert(v) { it.id },
-        activeVehicleId = activeVehicleId ?: v.id,
-    )
+    /**
+     * Adds or replaces a vehicle; the first one becomes active. Changing the type ends its session,
+     * because the wheels no longer match the recorded wedge state.
+     */
+    fun upsertVehicle(v: VehicleProfile): AppData {
+        val old = vehicles.find { it.id == v.id }
+        return copy(
+            vehicles = vehicles.upsert(v) { it.id },
+            activeVehicleId = activeVehicleId ?: v.id,
+            session = session?.takeUnless { it.vehicleId == v.id && old != null && old.type != v.type },
+        )
+    }
 
-    fun upsertEquipment(e: EquipmentProfile): AppData = copy(
-        equipment = equipment.upsert(e) { it.id },
-        activeEquipmentId = activeEquipmentId ?: e.id,
-    )
+    /** Adds or replaces a wedge set; changing its steps ends its session (recorded steps would be wrong). */
+    fun upsertEquipment(e: EquipmentProfile): AppData {
+        val old = equipment.find { it.id == e.id }
+        return copy(
+            equipment = equipment.upsert(e) { it.id },
+            activeEquipmentId = activeEquipmentId ?: e.id,
+            session = session?.takeUnless { it.equipmentId == e.id && old != null && old.stepHeightsMm != e.stepHeightsMm },
+        )
+    }
 
     /** Removes a vehicle; if it was active, the first remaining one takes over. */
     fun deleteVehicle(id: String): AppData {

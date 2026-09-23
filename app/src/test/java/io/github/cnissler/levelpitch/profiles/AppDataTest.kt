@@ -78,6 +78,15 @@ class AppDataTest {
     }
 
     @Test
+    fun changingVehicleTypeOrWedgeStepsEndsTheSession() {
+        val d = base.recordMeasurement(m)
+        assertEquals(d.session, d.upsertVehicle(van.copy(name = "Renamed", trackMm = 1700.0)).session)
+        assertNull(d.upsertVehicle(van.copy(type = VehicleType.CARAVAN_SINGLE, hitchToAxleMm = 3000.0)).session)
+        assertEquals(d.session, d.upsertEquipment(wedges.copy(wedgesOwned = 2)).session)
+        assertNull(d.upsertEquipment(wedges.copy(stepHeightsMm = listOf(30.0, 60.0))).session)
+    }
+
+    @Test
     fun noSessionWithoutProfiles() {
         assertEquals(AppData(), AppData().recordMeasurement(m))
     }
