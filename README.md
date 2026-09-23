@@ -41,3 +41,12 @@ push and pull request.
 Vehicle frame: x forward, y left, z up. Pitch is positive when the nose is up, roll
 is positive when the left side is up. The unit tests in `leveling/` are the source
 of truth for these signs.
+
+## License
+
+Copyright 2026 Christian Nissler
+
+Licensed under the [Apache License, Version 2.0](LICENSE). You may use,
+change and redistribute this code under its terms; it comes without
+warranty. Always check your vehicle's level yourself and secure it with the
+handbrake and chocks.
