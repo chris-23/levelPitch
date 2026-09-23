@@ -151,6 +151,19 @@ and the residual after levelling. Logs export as JSON for offline analysis
   (M3); the zero depends on orientation because the sensor bias turns with
   the phone.
 
+## Vehicle presets
+
+The vehicle editor offers common motorhome base vehicles (Ducato platform
+incl. its motorhome chassis with 1980 mm rear track, Sprinter, Crafter/TGE,
+Transit, VW T6/T6.1) with their wheelbases; choosing one fills type,
+wheelbase and track, and a new vehicle starts from the most common one
+(Ducato motorhome chassis, 4035 mm). Values are manufacturer figures
+(September 2026); the engine uses one track, so presets store the mean of
+front and rear. A few cm off changes recommended heights by ~1 %, so
+presets are good enough, but the editor asks to compare with the vehicle
+papers because converters sometimes change the chassis. Caravans have no
+common bases, so they get no presets.
+
 ## Data model
 
 ```

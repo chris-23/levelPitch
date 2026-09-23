@@ -118,4 +118,10 @@
     <string name="to_step">→ step %1$d</string>
     <string name="to_none">→ remove</string>
     <string name="wheel_description">%1$s: %2$s</string>
+    <string name="base_vehicle">Base vehicle</string>
+    <string name="base_vehicle_choose">Choose a base vehicle to fill in its dimensions</string>
+    <string name="base_vehicle_custom">Other / enter dimensions yourself</string>
+    <string name="base_vehicle_wheelbase">%1$s cm</string>
+    <string name="base_vehicle_help">Manufacturer values. Converters sometimes change them, so compare with your vehicle papers.</string>
+    <string name="base_vehicle_approximate">The track width of this base is approximate.</string>
 </resources>

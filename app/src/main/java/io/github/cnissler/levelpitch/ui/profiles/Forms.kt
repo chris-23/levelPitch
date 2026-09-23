@@ -3,6 +3,9 @@ package io.github.cnissler.levelpitch.ui.profiles
 import io.github.cnissler.levelpitch.leveling.DEFAULT_TOLERANCE_DEG
 import io.github.cnissler.levelpitch.leveling.PhoneOrientation
 import io.github.cnissler.levelpitch.profiles.EquipmentProfile
+import io.github.cnissler.levelpitch.profiles.PresetVariant
+import io.github.cnissler.levelpitch.profiles.VehiclePreset
+import io.github.cnissler.levelpitch.profiles.vehiclePresets
 import io.github.cnissler.levelpitch.profiles.VehicleProfile
 import io.github.cnissler.levelpitch.profiles.VehicleType
 import java.math.BigDecimal
@@ -28,7 +31,23 @@ data class VehicleForm(
     val tandemSpacingCm: String = "",
     val orientation: PhoneOrientation = PhoneOrientation.TOP_TO_FRONT,
     val toleranceDeg: String = formatDecimal(DEFAULT_TOLERANCE_DEG),
+    /** Base vehicle the dimensions were taken from; only a hint for the editor, not stored. */
+    val presetId: String? = null,
 ) {
+    /** Fills type and dimensions from a base vehicle; name, orientation and tolerance stay. */
+    fun withPreset(preset: VehiclePreset, variant: PresetVariant) = copy(
+        type = VehicleType.MOTORHOME_2AXLE,
+        wheelbaseCm = mmToCm(variant.wheelbaseMm),
+        trackCm = mmToCm(variant.trackMm),
+        presetId = preset.id,
+    )
+
+    /** The preset variant the current dimensions match, if any. */
+    fun matchingVariant(preset: VehiclePreset): PresetVariant? = preset.variants.find {
+        type == VehicleType.MOTORHOME_2AXLE &&
+            parseDecimal(wheelbaseCm) == it.wheelbaseMm / 10 && parseDecimal(trackCm) == it.trackMm / 10
+    }
+
     /** The fields [type] uses; others are ignored. */
     val fields: Set<VehicleField>
         get() = setOf(VehicleField.NAME, VehicleField.TRACK, VehicleField.TOLERANCE) + when (type) {
@@ -68,6 +87,9 @@ data class VehicleForm(
 
     companion object {
         val TOLERANCE_RANGE = 0.1..5.0
+
+        /** A new vehicle starts from the most common base: the Ducato motorhome chassis, long wheelbase. */
+        fun newDefault(): VehicleForm = vehiclePresets.first().let { VehicleForm().withPreset(it, it.variants.last()) }
 
         fun from(p: VehicleProfile) = VehicleForm(
             name = p.name,

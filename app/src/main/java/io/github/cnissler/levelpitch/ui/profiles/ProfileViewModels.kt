@@ -23,7 +23,7 @@ class VehicleEditViewModel(app: LevelPitchApp, id: String?) : ViewModel() {
     private val existing = id?.let { i -> repo.data.value.vehicles.find { it.id == i } }
 
     val isNew: Boolean = existing == null
-    var form by mutableStateOf(existing?.let(VehicleForm::from) ?: VehicleForm())
+    var form by mutableStateOf(existing?.let(VehicleForm::from) ?: VehicleForm.newDefault())
     /** Errors show only after the first save attempt, not while typing a new profile. */
     var showErrors by mutableStateOf(false)
         private set

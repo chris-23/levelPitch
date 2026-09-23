@@ -1,6 +1,7 @@
 package io.github.cnissler.levelpitch.ui.profiles
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -13,13 +14,18 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -39,6 +45,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.github.cnissler.levelpitch.R
 import io.github.cnissler.levelpitch.profiles.VehicleType
+import io.github.cnissler.levelpitch.profiles.vehiclePresets
 import io.github.cnissler.levelpitch.ui.BackButton
 import io.github.cnissler.levelpitch.ui.ConfirmDeleteDialog
 import io.github.cnissler.levelpitch.ui.OrientationPicker
@@ -74,6 +81,10 @@ fun VehicleEditScreen(id: String?, onDone: () -> Unit) {
                     Text(stringResource(t.label()), modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp))
                 }
             }
+        }
+
+        if (form.type == VehicleType.MOTORHOME_2AXLE) {
+            BasePicker(form) { vm.form = it }
         }
 
         if (VehicleField.WHEELBASE in form.fields) {
@@ -155,6 +166,52 @@ fun EquipmentEditScreen(id: String?, onDone: () -> Unit) {
             R.string.field_wedges_owned, form.wedgesOwned, EquipmentField.WEDGES in errors, R.string.wedges_owned_invalid,
             keyboardType = KeyboardType.Number,
         ) { vm.form = form.copy(wedgesOwned = it) }
+    }
+}
+
+/** Picks a common base vehicle and wheelbase, which fills in wheelbase and track. */
+@Composable
+private fun BasePicker(form: VehicleForm, onChange: (VehicleForm) -> Unit) {
+    var menu by remember { mutableStateOf(false) }
+    val preset = vehiclePresets.find { it.id == form.presetId }
+    Text(stringResource(R.string.base_vehicle), style = MaterialTheme.typography.labelLarge)
+    Box {
+        OutlinedCard(onClick = { menu = true }, modifier = Modifier.fillMaxWidth()) {
+            Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(preset?.name ?: stringResource(R.string.base_vehicle_choose), modifier = Modifier.weight(1f))
+                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+            }
+        }
+        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+            vehiclePresets.forEach { p ->
+                DropdownMenuItem(text = { Text(p.name) }, onClick = {
+                    menu = false
+                    // Keep the wheelbase if this base offers it, else take its longest.
+                    val keep = p.variants.find { parseDecimal(form.wheelbaseCm) == it.wheelbaseMm / 10 }
+                    onChange(form.withPreset(p, keep ?: p.variants.last()))
+                })
+            }
+            DropdownMenuItem(text = { Text(stringResource(R.string.base_vehicle_custom)) }, onClick = {
+                menu = false
+                onChange(form.copy(presetId = null))
+            })
+        }
+    }
+    if (preset != null) {
+        val selected = form.matchingVariant(preset)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            preset.variants.forEach { v ->
+                FilterChip(
+                    selected = v == selected,
+                    onClick = { onChange(form.withPreset(preset, v)) },
+                    label = { Text(stringResource(R.string.base_vehicle_wheelbase, formatDecimal(v.wheelbaseMm / 10))) },
+                )
+            }
+        }
+        Text(stringResource(R.string.base_vehicle_help), style = MaterialTheme.typography.bodySmall)
+        if (preset.approximate) {
+            Text(stringResource(R.string.base_vehicle_approximate), style = MaterialTheme.typography.bodySmall)
+        }
     }
 }
 

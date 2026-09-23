@@ -4,6 +4,7 @@ import io.github.cnissler.levelpitch.leveling.PhoneOrientation
 import io.github.cnissler.levelpitch.leveling.Tilt
 import io.github.cnissler.levelpitch.profiles.EquipmentProfile
 import io.github.cnissler.levelpitch.profiles.VehicleProfile
+import io.github.cnissler.levelpitch.profiles.vehiclePresets
 import io.github.cnissler.levelpitch.profiles.VehicleType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -70,6 +71,35 @@ class FormsTest {
             phoneOrientation = PhoneOrientation.TOP_TO_LEFT, toleranceDeg = 0.3,
         ).withZero(PhoneOrientation.TOP_TO_LEFT, Tilt(0.1, 0.2))
         assertEquals(p, VehicleForm.from(p).toProfile("id", previous = p))
+    }
+
+    @Test
+    fun presetFillsTypeAndDimensionsButKeepsTheName() {
+        val ducato = vehiclePresets.first { it.id == "ducato-camper-chassis" }
+        val form = VehicleForm(name = "Mine", type = VehicleType.CARAVAN_SINGLE).withPreset(ducato, ducato.variants[1])
+        assertEquals("Mine", form.name)
+        assertEquals(VehicleType.MOTORHOME_2AXLE, form.type)
+        assertEquals("403.5", form.wheelbaseCm)
+        assertEquals("189.5", form.trackCm) // mean of 1810 front and 1980 rear
+        assertEquals(ducato.variants[1], form.matchingVariant(ducato))
+        assertNull(form.copy(wheelbaseCm = "400").matchingVariant(ducato))
+    }
+
+    @Test
+    fun everyPresetGivesAValidProfile() {
+        for (preset in vehiclePresets) {
+            for (variant in preset.variants) {
+                val p = VehicleForm(name = "x").withPreset(preset, variant).toProfile("id")
+                assertEquals(preset.id, variant.wheelbaseMm, p!!.wheelbaseMm!!, 1e-9)
+            }
+        }
+    }
+
+    @Test
+    fun newVehicleStartsFromTheMostCommonBase() {
+        val form = VehicleForm.newDefault()
+        assertEquals("ducato-camper-chassis", form.presetId)
+        assertEquals(setOf(VehicleField.NAME), form.errors())
     }
 
     @Test
