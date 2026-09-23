@@ -2,6 +2,7 @@ package io.github.cnissler.levelpitch.ui.profiles
 
 import io.github.cnissler.levelpitch.leveling.PhoneOrientation
 import io.github.cnissler.levelpitch.leveling.Tilt
+import io.github.cnissler.levelpitch.profiles.EquipmentKind
 import io.github.cnissler.levelpitch.profiles.EquipmentProfile
 import io.github.cnissler.levelpitch.profiles.VehicleProfile
 import io.github.cnissler.levelpitch.profiles.vehiclePresets
@@ -172,6 +173,18 @@ class FormsTest {
         val tandem = own.withType(VehicleType.CARAVAN_TANDEM)
         assertEquals("205", tandem.trackCm)
         assertEquals("433", tandem.hitchToAxleCm)
+    }
+
+    @Test
+    fun continuousDevicesNeedAMaximumLiftInsteadOfSteps() {
+        val jack = EquipmentForm(name = "Side-lift jack", stepsCm = listOf(""), wedgesOwned = "1", kind = EquipmentKind.CONTINUOUS)
+        assertEquals(setOf(EquipmentField.MAX_LIFT), jack.errors())
+        assertEquals(setOf(EquipmentField.MAX_LIFT), jack.copy(maxLiftCm = "0,5").errors())
+        val p = jack.copy(maxLiftCm = "12").toProfile("id")!!
+        assertEquals(EquipmentKind.CONTINUOUS, p.kind)
+        assertEquals(120.0, p.maxLiftMm!!, 0.0)
+        assertEquals(24, p.toEquipment().stepHeightsMm.size)
+        assertEquals(p, EquipmentForm.from(p).toProfile("id"))
     }
 
     @Test

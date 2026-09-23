@@ -47,6 +47,7 @@ import io.github.cnissler.levelpitch.leveling.Wheel
 import io.github.cnissler.levelpitch.ui.pixel.PixelImage
 import io.github.cnissler.levelpitch.ui.pixel.SPRITE_WIDTH
 import io.github.cnissler.levelpitch.ui.pixel.SpriteKind
+import io.github.cnissler.levelpitch.ui.pixel.liftBadge
 import io.github.cnissler.levelpitch.ui.pixel.vehicleSprite
 import io.github.cnissler.levelpitch.ui.pixel.wedgeBadge
 import io.github.cnissler.levelpitch.ui.profiles.formatDecimal
@@ -134,10 +135,22 @@ private fun WedgeCard(
 ) {
     var menu by remember { mutableStateOf(false) }
     val next = target?.takeIf { it != step }
-    val now = stepShort(step)
-    val nextText = next?.let { if (it == 0) stringResource(R.string.to_none) else stringResource(R.string.to_step, it) }
+    val now = stepShort(step, equipment)
+    val nextText = next?.let {
+        when {
+            it == 0 -> stringResource(R.string.to_none)
+            equipment.continuous -> stringResource(R.string.to_lift, cm(equipment.heightMm(it)))
+            else -> stringResource(R.string.to_step, it)
+        }
+    }
     val description = stringResource(R.string.wheel_description, label, listOfNotNull(now, nextText).joinToString(" "))
-    val badge = remember(equipment.stepHeightsMm, step, next) { wedgeBadge(equipment.stepHeightsMm, step, next) }
+    val badge = remember(equipment, step, next) {
+        if (equipment.continuous) {
+            liftBadge(equipment.stepHeightsMm.last(), equipment.heightMm(step), next?.let { equipment.heightMm(it) })
+        } else {
+            wedgeBadge(equipment.stepHeightsMm, step, next)
+        }
+    }
     Box(modifier) {
         OutlinedCard(onClick = { menu = true }, modifier = Modifier.width(CARD_WIDTH).semantics { contentDescription = description }) {
             Column(Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -182,12 +195,20 @@ private fun Vehicle.kind(): SpriteKind = when (this) {
 }
 
 @Composable
-private fun stepShort(step: Int): String =
-    if (step == 0) stringResource(R.string.no_wedge) else stringResource(R.string.step_short, step)
+private fun stepShort(step: Int, equipment: Equipment): String = when {
+    equipment.continuous && step == 0 -> stringResource(R.string.no_lift)
+    equipment.continuous -> stringResource(R.string.lift_short, cm(equipment.heightMm(step)))
+    step == 0 -> stringResource(R.string.no_wedge)
+    else -> stringResource(R.string.step_short, step)
+}
 
 @Composable
-private fun stepOption(step: Int, equipment: Equipment): String =
-    if (step == 0) stringResource(R.string.no_wedge) else stringResource(R.string.step_option, step, cm(equipment.heightMm(step)))
+private fun stepOption(step: Int, equipment: Equipment): String = when {
+    equipment.continuous && step == 0 -> stringResource(R.string.no_lift)
+    equipment.continuous -> stringResource(R.string.lift_option, cm(equipment.heightMm(step)))
+    step == 0 -> stringResource(R.string.no_wedge)
+    else -> stringResource(R.string.step_option, step, cm(equipment.heightMm(step)))
+}
 
 fun cm(mm: Double): String = formatDecimal(Math.round(mm) / 10.0)
 

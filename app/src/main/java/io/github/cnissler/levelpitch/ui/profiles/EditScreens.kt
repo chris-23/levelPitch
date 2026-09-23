@@ -47,6 +47,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.github.cnissler.levelpitch.R
 import io.github.cnissler.levelpitch.profiles.CaravanSize
+import io.github.cnissler.levelpitch.profiles.EquipmentKind
 import io.github.cnissler.levelpitch.profiles.VehicleType
 import io.github.cnissler.levelpitch.profiles.caravanSizes
 import io.github.cnissler.levelpitch.profiles.vehiclePresets
@@ -142,46 +143,78 @@ fun EquipmentEditScreen(id: String?, onDone: () -> Unit) {
             vm.form = form.copy(name = it)
         }
 
-        PresetDropdown(
-            title = R.string.wedge_model,
-            selected = wedgePresets.find { it.id == form.presetId }?.name,
-            placeholder = R.string.wedge_model_choose,
-            options = wedgePresets.map { it.name },
-            onPick = { vm.form = form.withPreset(wedgePresets[it]) },
-            onCustom = { vm.form = form.copy(presetId = null) },
-        )
-
-        Text(stringResource(R.string.steps_help), style = MaterialTheme.typography.bodyMedium)
-        form.stepsCm.forEachIndexed { i, step ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                OutlinedTextField(
-                    value = step,
-                    onValueChange = { v -> vm.form = form.copy(stepsCm = form.stepsCm.toMutableList().also { it[i] = v }) },
-                    label = { Text(stringResource(R.string.field_step, i + 1)) },
-                    isError = EquipmentField.STEPS in errors,
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.weight(1f),
-                )
-                if (form.stepsCm.size > 1) {
-                    IconButton(onClick = { vm.form = form.copy(stepsCm = form.stepsCm.filterIndexed { j, _ -> j != i }) }) {
-                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.remove_step))
-                    }
+        Text(stringResource(R.string.equipment_kind), style = MaterialTheme.typography.labelLarge)
+        Column {
+            EquipmentKind.entries.forEach { k ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .selectable(selected = form.kind == k, role = Role.RadioButton) { vm.form = form.copy(kind = k) },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(selected = form.kind == k, onClick = null)
+                    Text(
+                        stringResource(if (k == EquipmentKind.STEPPED) R.string.kind_stepped else R.string.kind_continuous),
+                        modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp),
+                    )
                 }
             }
         }
-        if (EquipmentField.STEPS in errors) {
-            Text(stringResource(R.string.steps_invalid), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-        }
-        TextButton(onClick = { vm.form = form.copy(stepsCm = form.stepsCm + "") }) {
-            Icon(Icons.Default.Add, contentDescription = null)
-            Text(stringResource(R.string.add_step), modifier = Modifier.padding(start = 8.dp))
+
+        if (form.kind == EquipmentKind.CONTINUOUS) {
+            NumberInput(
+                R.string.field_max_lift, form.maxLiftCm, EquipmentField.MAX_LIFT in errors, R.string.max_lift_invalid,
+                help = R.string.field_max_lift_help,
+            ) { vm.form = form.copy(maxLiftCm = it) }
+        } else {
+            SteppedFields(form, errors) { vm.form = it }
         }
 
         TextInput(
-            R.string.field_wedges_owned, form.wedgesOwned, EquipmentField.WEDGES in errors, R.string.wedges_owned_invalid,
+            if (form.kind == EquipmentKind.CONTINUOUS) R.string.field_devices_owned else R.string.field_wedges_owned,
+            form.wedgesOwned, EquipmentField.WEDGES in errors, R.string.wedges_owned_invalid,
             keyboardType = KeyboardType.Number,
         ) { vm.form = form.copy(wedgesOwned = it) }
+    }
+}
+
+/** Wedge model picker and the list of step heights. */
+@Composable
+private fun SteppedFields(form: EquipmentForm, errors: Set<EquipmentField>, onChange: (EquipmentForm) -> Unit) {
+    PresetDropdown(
+        title = R.string.wedge_model,
+        selected = wedgePresets.find { it.id == form.presetId }?.name,
+        placeholder = R.string.wedge_model_choose,
+        options = wedgePresets.map { it.name },
+        onPick = { onChange(form.withPreset(wedgePresets[it])) },
+        onCustom = { onChange(form.copy(presetId = null)) },
+    )
+
+    Text(stringResource(R.string.steps_help), style = MaterialTheme.typography.bodyMedium)
+    form.stepsCm.forEachIndexed { i, step ->
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(
+                value = step,
+                onValueChange = { v -> onChange(form.copy(stepsCm = form.stepsCm.toMutableList().also { it[i] = v })) },
+                label = { Text(stringResource(R.string.field_step, i + 1)) },
+                isError = EquipmentField.STEPS in errors,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                modifier = Modifier.weight(1f),
+            )
+            if (form.stepsCm.size > 1) {
+                IconButton(onClick = { onChange(form.copy(stepsCm = form.stepsCm.filterIndexed { j, _ -> j != i })) }) {
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.remove_step))
+                }
+            }
+        }
+    }
+    if (EquipmentField.STEPS in errors) {
+        Text(stringResource(R.string.steps_invalid), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+    }
+    TextButton(onClick = { onChange(form.copy(stepsCm = form.stepsCm + "")) }) {
+        Icon(Icons.Default.Add, contentDescription = null)
+        Text(stringResource(R.string.add_step), modifier = Modifier.padding(start = 8.dp))
     }
 }
 

@@ -126,6 +126,14 @@ and the residual after levelling. Logs export as JSON for offline analysis
   caravan gets jockey advice only from a tilt measurement.
 - If the tallest step is insufficient, report the best achievable residual
   and suggest turning or repositioning the vehicle.
+- Continuous devices (curved levellers, side-lift jacks, air bags) lift to
+  any height up to a maximum. The engine models them as virtual steps every
+  5 mm (finer is pointless when adjusting by eye), so the same search,
+  tie-breaks and device limit apply; the UI says "lift 3.5 cm" instead of a
+  step. With more than two raise groups (a motorhome with 3–4 devices) it
+  searches every 10 mm and then refines ±5 mm per group around the best
+  result, which keeps the worst case around 0.2 s on a desktop JVM; the
+  plan is computed off the main thread.
 - Level check on a measurement: motorhome total tilt ≤ tolerance; caravan
   |roll| ≤ tolerance and |pitch| ≤ tolerance (otherwise the jockey wheel
   still needs adjusting). Once level, the loop stops suggesting changes.
@@ -203,7 +211,8 @@ VehicleProfile   id, name, type {MOTORHOME_2AXLE, CARAVAN_SINGLE, CARAVAN_TANDEM
                  wheelbaseMm, trackMm, hitchToAxleMm?, tandemSpacingMm?,
                  phoneOrientation {0,90,180,270},
                  zeroOffsets {orientation -> (pitchDeg, rollDeg)}, toleranceDeg = 0.5
-EquipmentProfile id, name, stepHeightsMm [e.g. 30, 60, 90], wedgesOwned
+EquipmentProfile id, name, kind {STEPPED, CONTINUOUS}, stepHeightsMm [e.g. 30, 60, 90]
+                 (stepped), maxLiftMm (continuous), wedgesOwned (devices owned)
 Measurement      timestamp, source {IMU, CAMERA}, pitchDeg, rollDeg (zero-corrected),
                  noiseDeg, driftDeg, sampleCount, wedgeState at measurement time,
                  contactHeightsMm? (camera)

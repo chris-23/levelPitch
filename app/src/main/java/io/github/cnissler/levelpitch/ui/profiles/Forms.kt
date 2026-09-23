@@ -3,6 +3,7 @@ package io.github.cnissler.levelpitch.ui.profiles
 import io.github.cnissler.levelpitch.leveling.DEFAULT_TOLERANCE_DEG
 import io.github.cnissler.levelpitch.leveling.PhoneOrientation
 import io.github.cnissler.levelpitch.profiles.CaravanSize
+import io.github.cnissler.levelpitch.profiles.EquipmentKind
 import io.github.cnissler.levelpitch.profiles.EquipmentProfile
 import io.github.cnissler.levelpitch.profiles.caravanSizes
 import io.github.cnissler.levelpitch.profiles.PresetVariant
@@ -142,13 +143,15 @@ data class VehicleForm(
     }
 }
 
-enum class EquipmentField { NAME, STEPS, WEDGES }
+enum class EquipmentField { NAME, STEPS, MAX_LIFT, WEDGES }
 
 /** Wedge editor contents as typed; step heights in cm, lowest first. */
 data class EquipmentForm(
     val name: String = "",
     val stepsCm: List<String> = listOf(""),
     val wedgesOwned: String = "2",
+    val kind: EquipmentKind = EquipmentKind.STEPPED,
+    val maxLiftCm: String = "",
     /** Wedge model the steps were taken from; only a hint for the editor, not stored. */
     val presetId: String? = null,
 ) {
@@ -161,26 +164,42 @@ data class EquipmentForm(
 
     private val steps: List<Double>? get() = stepsCm.map { cmToMm(it) ?: return null }
 
+    private val maxLiftMm: Double? get() = cmToMm(maxLiftCm)?.takeIf { it >= MIN_LIFT_MM }
+
     fun errors(): Set<EquipmentField> = buildSet {
         if (name.isBlank()) add(EquipmentField.NAME)
-        val s = steps
-        if (s == null || s.isEmpty() || s.zipWithNext().any { (a, b) -> b <= a }) add(EquipmentField.STEPS)
+        if (kind == EquipmentKind.STEPPED) {
+            val s = steps
+            if (s == null || s.isEmpty() || s.zipWithNext().any { (a, b) -> b <= a }) add(EquipmentField.STEPS)
+        } else if (maxLiftMm == null) {
+            add(EquipmentField.MAX_LIFT)
+        }
         if (wedgesOwned.trim().toIntOrNull()?.let { it >= 1 } != true) add(EquipmentField.WEDGES)
     }
 
     fun toProfile(id: String): EquipmentProfile? {
         if (errors().isNotEmpty()) return null
-        return EquipmentProfile(id, name.trim(), steps!!, wedgesOwned.trim().toInt())
+        val owned = wedgesOwned.trim().toInt()
+        return when (kind) {
+            EquipmentKind.STEPPED -> EquipmentProfile(id, name.trim(), steps!!, owned)
+            EquipmentKind.CONTINUOUS ->
+                EquipmentProfile(id, name.trim(), emptyList(), owned, EquipmentKind.CONTINUOUS, maxLiftMm)
+        }
     }
 
     companion object {
         /** New wedges start from the first (most widespread) model. */
         fun newDefault(): EquipmentForm = EquipmentForm().withPreset(wedgePresets.first())
 
+        /** Below one resolution step a continuous device can't be modelled. */
+        const val MIN_LIFT_MM = 10.0
+
         fun from(p: EquipmentProfile) = EquipmentForm(
             name = p.name,
-            stepsCm = p.stepHeightsMm.map { mmToCm(it) },
+            stepsCm = p.stepHeightsMm.map { mmToCm(it) }.ifEmpty { listOf("") },
             wedgesOwned = p.wedgesOwned.toString(),
+            kind = p.kind,
+            maxLiftCm = mmToCm(p.maxLiftMm),
         )
     }
 }

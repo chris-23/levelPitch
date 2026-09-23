@@ -7,10 +7,12 @@ import io.github.cnissler.levelpitch.leveling.Wheel
 import io.github.cnissler.levelpitch.leveling.WindowResult
 import io.github.cnissler.levelpitch.leveling.relativeTo
 import io.github.cnissler.levelpitch.profiles.MeasurementRecord
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -24,7 +26,7 @@ class LevelViewModel(app: LevelPitchApp) : ViewModel() {
 
     val state: StateFlow<LevelUiState> = combine(repo.data, running, rejected) { data, run, rej ->
         levelUiState(data, source.isAvailable, run, rej)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, levelUiState(repo.data.value, source.isAvailable, false, null))
+    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.Eagerly, levelUiState(repo.data.value, source.isAvailable, false, null))
 
     fun measure() {
         val s = state.value

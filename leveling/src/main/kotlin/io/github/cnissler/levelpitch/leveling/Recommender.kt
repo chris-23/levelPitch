@@ -11,8 +11,12 @@ const val DEFAULT_TOLERANCE_DEG = 0.5
  */
 const val RESIDUAL_TIE_DEG = 0.01
 
-/** The user's stepped wedges: one wheel stands on one step of one wedge. */
-data class Equipment(val stepHeightsMm: List<Double>, val wedgesOwned: Int) {
+/**
+ * The user's levelling devices: stepped wedges (one wheel stands on one step of one wedge), or,
+ * if [continuous], devices that lift to any height (curved levellers, side-lift jacks, air bags),
+ * modelled as fine virtual steps so the same search applies.
+ */
+data class Equipment(val stepHeightsMm: List<Double>, val wedgesOwned: Int, val continuous: Boolean = false) {
     init {
         require(stepHeightsMm.isNotEmpty()) { "need at least one step" }
         require(stepHeightsMm.first() > 0 && stepHeightsMm.zipWithNext().all { (a, b) -> b > a }) {
@@ -25,7 +29,19 @@ data class Equipment(val stepHeightsMm: List<Double>, val wedgesOwned: Int) {
     val steps: IntRange get() = 0..stepHeightsMm.size
 
     fun heightMm(step: Int): Double = if (step == 0) 0.0 else stepHeightsMm[step - 1]
+
+    companion object {
+        /** Continuous devices lifting up to [maxLiftMm], as steps every [resolutionMm]. */
+        fun continuous(maxLiftMm: Double, devicesOwned: Int, resolutionMm: Double = CONTINUOUS_RESOLUTION_MM): Equipment {
+            require(maxLiftMm >= resolutionMm) { "maximum lift must be at least $resolutionMm mm" }
+            val n = (maxLiftMm / resolutionMm).toInt()
+            return Equipment((1..n).map { it * resolutionMm }, devicesOwned, continuous = true)
+        }
+    }
 }
+
+/** Continuous devices are adjusted by eye, so finer than 5 mm (≈ 0.15° over a caravan track) is pointless. */
+const val CONTINUOUS_RESOLUTION_MM = 5.0
 
 /** Wedge step per wheel, 1-based into [Equipment.stepHeightsMm]; 0 or absent = no wedge. */
 typealias WedgeState = Map<Wheel, Int>
@@ -95,25 +111,47 @@ fun recommend(
         null
     }
 
-    val candidates = wedgeStates(vehicle.raiseGroups, equipment)
-        .map { evaluate(vehicle, equipment, ground, hitchMm, it) }
-    val best = candidates.minOf { it.residualDeg }
-    return candidates
-        .filter { it.residualDeg < best + RESIDUAL_TIE_DEG }
-        .minWith(
-            compareBy<Recommendation> { it.changesFrom(current).size }
-                .thenBy { it.wedgeCount }
-                .thenBy { r -> r.steps.values.sumOf { equipment.heightMm(it) } },
-        )
+    fun best(states: List<WedgeState>): Recommendation {
+        val candidates = states.map { evaluate(vehicle, equipment, ground, hitchMm, it) }
+        val lowest = candidates.minOf { it.residualDeg }
+        return candidates
+            .filter { it.residualDeg < lowest + RESIDUAL_TIE_DEG }
+            .minWith(
+                compareBy<Recommendation> { it.changesFrom(current).size }
+                    .thenBy { it.wedgeCount }
+                    .thenBy { r -> r.steps.values.sumOf { equipment.heightMm(it) } },
+            )
+    }
+
+    val groups = vehicle.raiseGroups
+    val fine = equipment.steps.toList()
+    if (!equipment.continuous || groups.size <= 2) return best(wedgeStates(groups, equipment, fine))
+
+    // Many groups × many fine steps is too slow for a phone: search every other step, then refine
+    // each group by one step around the coarse optimum (which stays among the candidates).
+    val coarse = best(wedgeStates(groups, equipment, fine.filter { it % 2 == 0 }))
+    var refined = listOf(emptyMap<Wheel, Int>())
+    for (group in groups) {
+        val s = coarse.steps.getValue(group.first())
+        val options = (s - 1..s + 1).filter { it in equipment.steps }
+        refined = refined.flatMap { state -> options.map { step -> state + group.associateWith { step } } }
+    }
+    return best(refined.filter { state -> state.values.count { it > 0 } <= equipment.wedgesOwned })
 }
 
 /** Every assignment of a step to each raise group that needs at most [Equipment.wedgesOwned] wedges. */
-private fun wedgeStates(groups: List<List<Wheel>>, equipment: Equipment): List<WedgeState> {
+private fun wedgeStates(groups: List<List<Wheel>>, equipment: Equipment, steps: List<Int>): List<WedgeState> {
     var states = listOf(emptyMap<Wheel, Int>())
     for (group in groups) {
-        states = states.flatMap { state -> equipment.steps.map { step -> state + group.associateWith { step } } }
+        // Prune while building: states needing more wedges than owned never become candidates.
+        states = states.flatMap { state ->
+            val used = state.values.count { it > 0 }
+            steps
+                .filter { step -> step == 0 || used + group.size <= equipment.wedgesOwned }
+                .map { step -> state + group.associateWith { step } }
+        }
     }
-    return states.filter { state -> state.values.count { it > 0 } <= equipment.wedgesOwned }
+    return states
 }
 
 private fun evaluate(

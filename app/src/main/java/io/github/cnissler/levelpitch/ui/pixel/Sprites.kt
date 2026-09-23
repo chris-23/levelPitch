@@ -194,3 +194,32 @@ fun wedgeBadge(stepHeightsMm: List<Double>, current: Int, target: Int?): PixelIm
     img.disc(cx, cy, 1.5, Palette.HUB)
     return img
 }
+
+/**
+ * Side view of a tyre on a continuous lifting device (jack, curved leveller, air bag): a block whose
+ * height is proportional to the lift. Extra lift still needed glows; lift to take away is greyed.
+ */
+fun liftBadge(maxLiftMm: Double, currentMm: Double, targetMm: Double?): PixelImage {
+    require(maxLiftMm > 0) { "maximum lift must be positive" }
+    val img = PixelImage(BADGE_WIDTH, BADGE_HEIGHT)
+    img.fill(0, BADGE_GROUND_ROW, BADGE_WIDTH, 1, Palette.GROUND)
+    fun px(mm: Double) = (mm / maxLiftMm * BADGE_MAX_STEP_PX).roundToInt().coerceIn(0, BADGE_MAX_STEP_PX)
+    val now = px(currentMm)
+    val then = targetMm?.let { px(it) } ?: now
+    val x = BADGE_TYRE_X - 7
+    val w = 14
+    val keep = minOf(now, then)
+    img.fill(x, BADGE_GROUND_ROW - keep, w, keep, Palette.WEDGE)
+    if (then > now) img.fill(x, BADGE_GROUND_ROW - then, w, then - now, Palette.HIGHLIGHT)
+    if (then < now) img.fill(x, BADGE_GROUND_ROW - now, w, now - then, Palette.WEDGE_OFF)
+    if (keep > 0) img.fill(x, BADGE_GROUND_ROW - keep, w, 1, Palette.WEDGE_TOP)
+
+    val bottomEdge = (BADGE_GROUND_ROW - now).toDouble()
+    val cx = BADGE_TYRE_X.toDouble()
+    val cy = bottomEdge - BADGE_TYRE_RADIUS
+    img.disc(cx, cy, BADGE_TYRE_RADIUS.toDouble(), Palette.TYRE_EDGE)
+    img.disc(cx, cy, BADGE_TYRE_RADIUS - 1.0, Palette.TYRE)
+    img.disc(cx, cy, 3.5, Palette.RIM)
+    img.disc(cx, cy, 1.5, Palette.HUB)
+    return img
+}

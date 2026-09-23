@@ -157,6 +157,46 @@ class RecommenderTest {
         assertEquals(0, r.wedgeCount)
     }
 
+    // --- Continuous devices (curved levellers, side-lift jacks, air bags) ---
+
+    @Test
+    fun continuousDevicesAreFineSteps() {
+        val jack = Equipment.continuous(maxLiftMm = 100.0, devicesOwned = 1)
+        assertTrue(jack.continuous)
+        assertEquals(20, jack.stepHeightsMm.size)
+        assertEquals(35.0, jack.heightMm(7), 0.0)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun continuousNeedsSomeLift() {
+        Equipment.continuous(maxLiftMm = 2.0, devicesOwned = 1)
+    }
+
+    @Test
+    fun caravanWithSideLiftJackGetsTheExactHeightToTheNearest5mm() {
+        // Right side 34.9 mm low (1° over 2 m): lift it 35 mm, not a 30 mm wedge step.
+        val r = recommend(caravan, Equipment.continuous(100.0, devicesOwned = 1), tilt(0.0, 1.0))
+        assertEquals(mapOf(Wheel.LEFT to 0, Wheel.RIGHT to 7), r.steps)
+        assertTrue(r.residualDeg < 0.01)
+    }
+
+    @Test
+    fun motorhomeWithTwoCurvedLevellersLiftsTheRearPair() {
+        val levellers = Equipment.continuous(100.0, devicesOwned = 2)
+        val r = recommend(motorhome, levellers, tilt(1.0, 0.0))
+        // Rear 61.1 mm low: 60 mm under both rear wheels.
+        assertEquals(mapOf(Wheel.FRONT_LEFT to 0, Wheel.FRONT_RIGHT to 0, Wheel.REAR_LEFT to 12, Wheel.REAR_RIGHT to 12), r.steps)
+    }
+
+    @Test
+    fun fourContinuousDevicesStaySearchableQuickly() {
+        val start = System.nanoTime()
+        val r = recommend(motorhome, Equipment.continuous(100.0, devicesOwned = 4), tilt(1.0, 0.7))
+        val ms = (System.nanoTime() - start) / 1e6
+        assertTrue(r.isWithin(0.1))
+        println("4 continuous devices, coarse + refined search: $ms ms")
+    }
+
     // --- Tandem caravan ---
 
     @Test

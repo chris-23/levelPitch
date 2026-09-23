@@ -36,13 +36,16 @@ data class AppData(
         )
     }
 
-    /** Adds or replaces a wedge set; changing its steps ends its session (recorded steps would be wrong). */
+    /** Adds or replaces a wedge set; changing its steps or lift ends its session (recorded steps would be wrong). */
     fun upsertEquipment(e: EquipmentProfile): AppData {
         val old = equipment.find { it.id == e.id }
         return copy(
             equipment = equipment.upsert(e) { it.id },
             activeEquipmentId = activeEquipmentId ?: e.id,
-            session = session?.takeUnless { it.equipmentId == e.id && old != null && old.stepHeightsMm != e.stepHeightsMm },
+            session = session?.takeUnless {
+                it.equipmentId == e.id && old != null &&
+                    (old.stepHeightsMm != e.stepHeightsMm || old.kind != e.kind || old.maxLiftMm != e.maxLiftMm)
+            },
         )
     }
 

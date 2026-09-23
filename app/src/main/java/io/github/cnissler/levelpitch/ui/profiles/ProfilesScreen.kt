@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.cnissler.levelpitch.R
+import io.github.cnissler.levelpitch.profiles.EquipmentKind
 import io.github.cnissler.levelpitch.profiles.EquipmentProfile
 import io.github.cnissler.levelpitch.profiles.VehicleProfile
 import io.github.cnissler.levelpitch.profiles.VehicleType
@@ -131,5 +132,9 @@ private fun vehicleSummary(v: VehicleProfile): String {
 }
 
 @Composable
-private fun equipmentSummary(e: EquipmentProfile): String =
-    stringResource(R.string.summary_wedges, e.stepHeightsMm.joinToString(" / ") { formatDecimal(it / 10) }, e.wedgesOwned)
+private fun equipmentSummary(e: EquipmentProfile): String = when (e.kind) {
+    EquipmentKind.STEPPED ->
+        stringResource(R.string.summary_wedges, e.stepHeightsMm.joinToString(" / ") { formatDecimal(it / 10) }, e.wedgesOwned)
+    EquipmentKind.CONTINUOUS ->
+        stringResource(R.string.summary_continuous, formatDecimal((e.maxLiftMm ?: 0.0) / 10), e.wedgesOwned)
+}

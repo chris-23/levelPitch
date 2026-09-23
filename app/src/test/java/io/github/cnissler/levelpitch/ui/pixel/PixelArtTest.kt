@@ -107,6 +107,23 @@ class PixelArtTest {
     }
 
     @Test
+    fun tyreRestsOnTheLiftBlock() {
+        for (mm in listOf(0.0, 50.0, 100.0)) {
+            val img = liftBadge(maxLiftMm = 100.0, currentMm = mm, targetMm = null)
+            val bottom = BADGE_GROUND_ROW - (mm / 100.0 * 8).toInt() - 1
+            assertEquals("lift $mm", Palette.TYRE_EDGE, img[BADGE_TYRE_X, bottom])
+            assertTrue("lift $mm", img[BADGE_TYRE_X, bottom + 1] in setOf(Palette.GROUND, Palette.WEDGE_TOP))
+        }
+    }
+
+    @Test
+    fun extraLiftGlowsAndLessLiftGreysOut() {
+        assertTrue(liftBadge(100.0, 20.0, 60.0).pixels.any { it == Palette.HIGHLIGHT })
+        assertTrue(liftBadge(100.0, 60.0, 20.0).pixels.any { it == Palette.WEDGE_OFF })
+        assertTrue(liftBadge(100.0, 40.0, 40.0).pixels.none { it == Palette.HIGHLIGHT || it == Palette.WEDGE_OFF })
+    }
+
+    @Test
     fun targetStepGlowsAndRemovalGreysOut() {
         val steps = listOf(30.0, 60.0, 90.0)
         val glowing = wedgeBadge(steps, current = 1, target = 2)

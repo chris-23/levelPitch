@@ -215,7 +215,9 @@ private fun PlanCard(plan: LevelPlan, setup: Setup.Ready, showJockey: Boolean, o
             }
 
             if (plan.changes.isNotEmpty()) {
-                Button(onClick = onPlaced) { Text(stringResource(R.string.wedges_placed)) }
+                Button(onClick = onPlaced) {
+                    Text(stringResource(if (setup.equipment.continuous) R.string.lifted_done else R.string.wedges_placed))
+                }
             }
         }
     }
@@ -225,6 +227,13 @@ private fun PlanCard(plan: LevelPlan, setup: Setup.Ready, showJockey: Boolean, o
 private fun changeText(change: WedgeChange, setup: Setup.Ready): String {
     val where = groupLabel(change.wheels)
     val mm = setup.equipment.heightMm(change.toStep)
+    if (setup.equipment.continuous) {
+        return when {
+            change.toStep == 0 -> stringResource(R.string.change_lower, where)
+            change.fromStep == 0 -> stringResource(R.string.change_lift, where, cm(mm))
+            else -> stringResource(R.string.change_lift_move, where, cm(setup.equipment.heightMm(change.fromStep)), cm(mm))
+        }
+    }
     return when {
         change.toStep == 0 -> stringResource(R.string.change_remove, where)
         change.fromStep == 0 -> stringResource(R.string.change_add, where, change.toStep, cm(mm))

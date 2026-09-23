@@ -63,16 +63,31 @@ data class VehicleProfile(
 
 private fun required(value: Double?, what: String): Double = requireNotNull(value) { "$what missing" }
 
-/** A set of stepped wedges. */
+@Serializable
+enum class EquipmentKind {
+    /** Wedges with fixed steps. */
+    STEPPED,
+
+    /** Devices that lift to any height up to a maximum: curved levellers, side-lift jacks, air bags. */
+    CONTINUOUS,
+}
+
+/** A set of levelling devices: stepped wedges, or continuous devices lifting up to [maxLiftMm]. */
 @Serializable
 data class EquipmentProfile(
     val id: String,
     val name: String,
     val stepHeightsMm: List<Double>,
+    /** Number of wedges, or of continuous devices. */
     val wedgesOwned: Int,
+    val kind: EquipmentKind = EquipmentKind.STEPPED,
+    val maxLiftMm: Double? = null,
 ) {
-    /** Throws IllegalArgumentException for invalid steps or counts. */
-    fun toEquipment() = Equipment(stepHeightsMm, wedgesOwned)
+    /** Throws IllegalArgumentException for invalid steps, lift or counts. */
+    fun toEquipment(): Equipment = when (kind) {
+        EquipmentKind.STEPPED -> Equipment(stepHeightsMm, wedgesOwned)
+        EquipmentKind.CONTINUOUS -> Equipment.continuous(requireNotNull(maxLiftMm) { "maximum lift missing" }, wedgesOwned)
+    }
 }
 
 @Serializable
