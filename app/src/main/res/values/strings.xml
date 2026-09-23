@@ -116,7 +116,10 @@
     <string name="caravan_unhitched">Unhitched</string>
     <string name="caravan_still_hitched">Still hitched</string>
     <string name="residual_ok">Afterwards: level within %1$s° (about %2$.2f°)</string>
-    <string name="residual_insufficient">Best possible with your wedges: %1$.1f°. Try turning or moving the vehicle.</string>
+    <string name="residual_insufficient">Can\'t get fully level here: %1$.1f° remains (%2$.1f° front to back, %3$.1f° side to side).</string>
+    <string name="residual_insufficient_caravan">Can\'t get fully level here: %1$.1f° remains side to side.</string>
+    <string name="capacity_motorhome">%1$s cm, the most you can lift, corrects at most %2$.1f° front to back or %3$.1f° side to side. Try moving the vehicle a little or turning it.</string>
+    <string name="capacity_caravan">%1$s cm, the most you can lift, corrects at most %2$.1f° side to side. Try moving the caravan a little or turning it.</string>
     <string name="wedges_placed">Wedges placed</string>
     <string name="diagram_hint">Tap a wheel to correct what it stands on.</string>
     <string name="diagram_front">Front</string>

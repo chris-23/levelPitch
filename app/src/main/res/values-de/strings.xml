@@ -115,7 +115,10 @@
     <string name="caravan_unhitched">Abgekuppelt</string>
     <string name="caravan_still_hitched">Noch angekuppelt</string>
     <string name="residual_ok">Danach: waagerecht innerhalb %1$s° (etwa %2$.2f°)</string>
-    <string name="residual_insufficient">Mit deinen Auffahrkeilen bestenfalls %1$.1f°. Dreh oder versetze das Fahrzeug.</string>
+    <string name="residual_insufficient">Ganz waagerecht geht es hier nicht: Es bleiben %1$.1f° (%2$.1f° längs, %3$.1f° quer).</string>
+    <string name="residual_insufficient_caravan">Ganz waagerecht geht es hier nicht: Es bleiben %1$.1f° quer.</string>
+    <string name="capacity_motorhome">Mit %1$s cm, dem höchsten Hub, gleichst du höchstens %2$.1f° längs oder %3$.1f° quer aus. Stell das Fahrzeug etwas versetzt oder gedreht hin.</string>
+    <string name="capacity_caravan">Mit %1$s cm, dem höchsten Hub, gleichst du höchstens %2$.1f° quer aus. Stell den Wohnwagen etwas versetzt oder gedreht hin.</string>
     <string name="wedges_placed">Auffahrkeile liegen</string>
     <string name="diagram_hint">Tipp auf ein Rad, um zu korrigieren, worauf es steht.</string>
     <string name="diagram_front">Vorne</string>

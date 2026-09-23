@@ -1,6 +1,9 @@
 package io.github.cnissler.levelpitch.ui.level
 
+import io.github.cnissler.levelpitch.leveling.Equipment
+import io.github.cnissler.levelpitch.leveling.Motorhome
 import io.github.cnissler.levelpitch.leveling.PhoneOrientation
+import io.github.cnissler.levelpitch.leveling.SingleAxleCaravan
 import io.github.cnissler.levelpitch.leveling.Tilt
 import io.github.cnissler.levelpitch.leveling.Wheel
 import io.github.cnissler.levelpitch.profiles.AppData
@@ -139,6 +142,18 @@ class LevelStateTest {
         assertTrue(state(noseUp).plan!!.recommendation.hitchAdjustMm!! < 0)
         val done = noseUp.recordMeasurement(measured(Tilt(0.1, 0.1)))
         assertEquals(CaravanStep.STEADIES, state(done).caravanStep)
+    }
+
+    @Test
+    fun capacityIsTheHighestLiftAcrossWheelbaseAndTrack() {
+        // The case from a real pitch: 10 cm over a 403.5 cm Ducato wheelbase is only 1.42°.
+        val c = capacity(Motorhome(wheelbaseMm = 4035.0, trackMm = 1895.0), Equipment(listOf(40.0, 70.0, 100.0), 2))
+        assertEquals(100.0, c.maxLiftMm, 0.0)
+        assertEquals(1.42, c.frontToBackDeg!!, 0.005)
+        assertEquals(3.02, c.sideToSideDeg, 0.005)
+        val caravan = capacity(SingleAxleCaravan(2000.0, 4110.0), Equipment.continuous(120.0, 1))
+        assertNull(caravan.frontToBackDeg)
+        assertEquals(Math.toDegrees(atan(120.0 / 2000.0)), caravan.sideToSideDeg, 1e-9)
     }
 
     @Test

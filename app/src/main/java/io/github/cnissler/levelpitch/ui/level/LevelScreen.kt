@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.cnissler.levelpitch.R
 import io.github.cnissler.levelpitch.leveling.Caravan
+import io.github.cnissler.levelpitch.leveling.Recommendation
 import io.github.cnissler.levelpitch.leveling.PhoneOrientation
 import io.github.cnissler.levelpitch.ui.HoldStill
 import io.github.cnissler.levelpitch.ui.RejectedResult
@@ -245,7 +246,7 @@ private fun PlanCard(plan: LevelPlan, setup: Setup.Ready, showJockey: Boolean, o
             if (rec.isWithin(tolerance)) {
                 Text(stringResource(R.string.residual_ok, displayDecimal(tolerance), rec.residualDeg))
             } else {
-                Text(stringResource(R.string.residual_insufficient, rec.residualDeg), color = MaterialTheme.colorScheme.error)
+                InsufficientNote(rec, setup)
             }
 
             if (plan.changes.isNotEmpty()) {
@@ -255,6 +256,25 @@ private fun PlanCard(plan: LevelPlan, setup: Setup.Ready, showJockey: Boolean, o
             }
         }
     }
+}
+
+/** The equipment can't reach the tolerance: what remains, and what the highest step or lift can correct at most. */
+@Composable
+private fun InsufficientNote(rec: Recommendation, setup: Setup.Ready) {
+    val cap = capacity(setup.vehicle, setup.equipment)
+    val front = cap.frontToBackDeg
+    val remains = if (front != null) {
+        stringResource(R.string.residual_insufficient, rec.residualDeg, abs(rec.residualPitchDeg ?: 0.0), abs(rec.residualRollDeg))
+    } else {
+        stringResource(R.string.residual_insufficient_caravan, rec.residualDeg)
+    }
+    val most = if (front != null) {
+        stringResource(R.string.capacity_motorhome, cm(cap.maxLiftMm), front, cap.sideToSideDeg)
+    } else {
+        stringResource(R.string.capacity_caravan, cm(cap.maxLiftMm), cap.sideToSideDeg)
+    }
+    Text(remains, color = MaterialTheme.colorScheme.error)
+    Text(most, style = MaterialTheme.typography.bodyMedium)
 }
 
 @Composable

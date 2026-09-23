@@ -3,8 +3,11 @@ package io.github.cnissler.levelpitch.ui.level
 import io.github.cnissler.levelpitch.leveling.Caravan
 import io.github.cnissler.levelpitch.leveling.Equipment
 import io.github.cnissler.levelpitch.leveling.Measurement
+import io.github.cnissler.levelpitch.leveling.Motorhome
 import io.github.cnissler.levelpitch.leveling.PhoneOrientation
 import io.github.cnissler.levelpitch.leveling.Recommendation
+import io.github.cnissler.levelpitch.leveling.SingleAxleCaravan
+import io.github.cnissler.levelpitch.leveling.TandemCaravan
 import io.github.cnissler.levelpitch.leveling.Tilt
 import io.github.cnissler.levelpitch.leveling.Vehicle
 import io.github.cnissler.levelpitch.leveling.WedgeState
@@ -18,6 +21,7 @@ import io.github.cnissler.levelpitch.profiles.LevelSession
 import io.github.cnissler.levelpitch.profiles.VehicleProfile
 import io.github.cnissler.levelpitch.profiles.normalized
 import kotlin.math.abs
+import kotlin.math.atan
 
 /** What the level screen can work with. */
 sealed interface Setup {
@@ -51,6 +55,24 @@ data class LevelPlan(
     /** The wedges now in place are the recommended ones. */
     val applied: Boolean,
 )
+
+/** The most the equipment can correct: the highest step (or lift) across the wheelbase or the track. */
+data class Capacity(
+    val maxLiftMm: Double,
+    /** Motorhomes only; caravans level front to back with the jockey wheel. */
+    val frontToBackDeg: Double?,
+    val sideToSideDeg: Double,
+)
+
+fun capacity(vehicle: Vehicle, equipment: Equipment): Capacity {
+    val lift = equipment.stepHeightsMm.last()
+    fun deg(spanMm: Double) = Math.toDegrees(atan(lift / spanMm))
+    return when (vehicle) {
+        is Motorhome -> Capacity(lift, deg(vehicle.wheelbaseMm), deg(vehicle.trackMm))
+        is SingleAxleCaravan -> Capacity(lift, null, deg(vehicle.trackMm))
+        is TandemCaravan -> Capacity(lift, null, deg(vehicle.trackMm))
+    }
+}
 
 /**
  * Where a caravan is in the usual procedure: level side to side with wedges while hitched, chock
