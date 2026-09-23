@@ -113,6 +113,9 @@ and the residual after levelling. Logs export as JSON for offline analysis
   caravan gets jockey advice only from a tilt measurement.
 - If the tallest step is insufficient, report the best achievable residual
   and suggest turning or repositioning the vehicle.
+- Level check on a measurement: motorhome total tilt ≤ tolerance; caravan
+  |roll| ≤ tolerance and |pitch| ≤ tolerance (otherwise the jockey wheel
+  still needs adjusting). Once level, the loop stops suggesting changes.
 - Re-measure: the new measurement is relative to the current wedge state,
   so new target = current heights + correction, snapped again. Implemented
   as: ground heights = heights from the new tilt − current wedge heights,
@@ -153,17 +156,24 @@ and the residual after levelling. Logs export as JSON for offline analysis
 ```
 VehicleProfile   id, name, type {MOTORHOME_2AXLE, CARAVAN_SINGLE, CARAVAN_TANDEM},
                  wheelbaseMm, trackMm, hitchToAxleMm?, tandemSpacingMm?,
-                 phoneOrientation {0,90,180,270}, zeroOffset (pitchDeg, rollDeg),
-                 toleranceDeg = 0.5
+                 phoneOrientation {0,90,180,270},
+                 zeroOffsets {orientation -> (pitchDeg, rollDeg)}, toleranceDeg = 0.5
 EquipmentProfile id, name, stepHeightsMm [e.g. 30, 60, 90], wedgesOwned
-Measurement      timestamp, source {IMU, CAMERA}, pitchDeg, rollDeg, stdDevDeg,
+Measurement      timestamp, source {IMU, CAMERA}, pitchDeg, rollDeg (zero-corrected),
+                 noiseDeg, driftDeg, sampleCount, wedgeState at measurement time,
                  contactHeightsMm? (camera)
 LevelSession     id, vehicleId, equipmentId, measurements[], wedgeState {wheel -> step}
 CameraCaptureLog sessionId, perWheel {contactPoint, planeNormal, inliers, rmsMm},
                  trackingInfo, linked IMU measurement
 ```
 
-Storage: local only (kotlinx.serialization JSON or Room; decide at M1).
+Storage (decided in M3): one kotlinx.serialization JSON file in app-private
+storage with all profiles, the active vehicle and wedge set, and the current
+level session (so the wedge state survives an app restart). A few profiles
+don't need a database, and the format matches the F5 JSON export. Written
+atomically; an unreadable file is kept aside as `.corrupt` and the app starts
+empty. One zero per orientation (bench result, M2), so `zeroOffsets` replaces
+the single zeroOffset.
 
 ## Architecture & stack
 

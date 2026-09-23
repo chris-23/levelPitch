@@ -6,7 +6,7 @@ Product spec, milestones and open questions:
 @SPEC.md
 
 ## Working rules
-- Current milestone: M2. Don't start the next milestone without asking.
+- Current milestone: M3. Don't start the next milestone without asking.
 - Small, focused commits; `./gradlew testDebugUnitTest` must pass before each commit.
 - The `:leveling` module is pure Kotlin/JVM with no Android dependencies, and every function there has JVM unit tests.
 - Sign conventions: vehicle frame x forward, y left, z up; pitch positive = nose up,
