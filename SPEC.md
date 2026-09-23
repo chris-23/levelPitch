@@ -130,6 +130,13 @@ and the residual after levelling. Logs export as JSON for offline analysis
   pitch = asin(up_x), roll = asin(up_y) of the unit up vector (the mean
   accelerometer reading at rest). The engine's tan form differs by
   1/cos(angle) in height (0.4 % at 5°), which is negligible.
+- Zero calibration stores the raw tilt read on a level vehicle (it holds
+  surface misalignment + sensor bias). Readings are corrected by the
+  smallest rotation that makes that zero vertical: exact for a tilted
+  surface (plain angle subtraction would be ≤ 0.02° off at 5°/5°). It
+  cannot correct a phone *turned* on the surface: a 5° turn mixes
+  sin 5° ≈ 9 % of pitch into roll (0.26° at 3° tilt), so the phone must be
+  aligned with an edge of the surface.
 
 ## Data model
 
