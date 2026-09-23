@@ -5,6 +5,7 @@ import io.github.cnissler.levelpitch.leveling.Tilt
 import io.github.cnissler.levelpitch.profiles.EquipmentProfile
 import io.github.cnissler.levelpitch.profiles.VehicleProfile
 import io.github.cnissler.levelpitch.profiles.vehiclePresets
+import io.github.cnissler.levelpitch.profiles.wedgePresets
 import io.github.cnissler.levelpitch.profiles.VehicleType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -100,6 +101,38 @@ class FormsTest {
         val form = VehicleForm.newDefault()
         assertEquals("ducato-camper-chassis", form.presetId)
         assertEquals(setOf(VehicleField.NAME), form.errors())
+    }
+
+    @Test
+    fun wedgePresetFillsStepsAndOnlyAnEmptyName() {
+        val quattro = wedgePresets.first { it.id == "milenco-quattro" }
+        val form = EquipmentForm().withPreset(quattro)
+        assertEquals(listOf("4", "9", "13", "18"), form.stepsCm)
+        assertEquals(quattro.name, form.name)
+        assertEquals("Mine", EquipmentForm(name = "Mine").withPreset(quattro).name)
+    }
+
+    @Test
+    fun autoFilledWedgeNameFollowsTheModel() {
+        val thule = wedgePresets.first { it.id == "thule-levelers" }
+        assertEquals(thule.name, EquipmentForm.newDefault().withPreset(thule).name)
+        val typed = EquipmentForm.newDefault().copy(name = "Yellow ones").withPreset(thule)
+        assertEquals("Yellow ones", typed.name)
+    }
+
+    @Test
+    fun everyWedgePresetGivesAValidProfile() {
+        for (preset in wedgePresets) {
+            val p = EquipmentForm().withPreset(preset).toProfile("id")
+            assertEquals(preset.id, preset.stepHeightsMm, p!!.stepHeightsMm)
+        }
+    }
+
+    @Test
+    fun newWedgesStartFromTheFirstModelAndAreValid() {
+        val form = EquipmentForm.newDefault()
+        assertEquals("fiamma-level-up", form.presetId)
+        assertEquals(emptySet<EquipmentField>(), form.errors())
     }
 
     @Test

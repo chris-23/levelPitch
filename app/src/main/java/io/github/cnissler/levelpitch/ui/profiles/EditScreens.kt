@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import io.github.cnissler.levelpitch.R
 import io.github.cnissler.levelpitch.profiles.VehicleType
 import io.github.cnissler.levelpitch.profiles.vehiclePresets
+import io.github.cnissler.levelpitch.profiles.wedgePresets
 import io.github.cnissler.levelpitch.ui.BackButton
 import io.github.cnissler.levelpitch.ui.ConfirmDeleteDialog
 import io.github.cnissler.levelpitch.ui.OrientationPicker
@@ -135,6 +136,15 @@ fun EquipmentEditScreen(id: String?, onDone: () -> Unit) {
             vm.form = form.copy(name = it)
         }
 
+        PresetDropdown(
+            title = R.string.wedge_model,
+            selected = wedgePresets.find { it.id == form.presetId }?.name,
+            placeholder = R.string.wedge_model_choose,
+            options = wedgePresets.map { it.name },
+            onPick = { vm.form = form.withPreset(wedgePresets[it]) },
+            onCustom = { vm.form = form.copy(presetId = null) },
+        )
+
         Text(stringResource(R.string.steps_help), style = MaterialTheme.typography.bodyMedium)
         form.stepsCm.forEachIndexed { i, step ->
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -172,31 +182,20 @@ fun EquipmentEditScreen(id: String?, onDone: () -> Unit) {
 /** Picks a common base vehicle and wheelbase, which fills in wheelbase and track. */
 @Composable
 private fun BasePicker(form: VehicleForm, onChange: (VehicleForm) -> Unit) {
-    var menu by remember { mutableStateOf(false) }
     val preset = vehiclePresets.find { it.id == form.presetId }
-    Text(stringResource(R.string.base_vehicle), style = MaterialTheme.typography.labelLarge)
-    Box {
-        OutlinedCard(onClick = { menu = true }, modifier = Modifier.fillMaxWidth()) {
-            Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(preset?.name ?: stringResource(R.string.base_vehicle_choose), modifier = Modifier.weight(1f))
-                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-            }
-        }
-        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-            vehiclePresets.forEach { p ->
-                DropdownMenuItem(text = { Text(p.name) }, onClick = {
-                    menu = false
-                    // Keep the wheelbase if this base offers it, else take its longest.
-                    val keep = p.variants.find { parseDecimal(form.wheelbaseCm) == it.wheelbaseMm / 10 }
-                    onChange(form.withPreset(p, keep ?: p.variants.last()))
-                })
-            }
-            DropdownMenuItem(text = { Text(stringResource(R.string.base_vehicle_custom)) }, onClick = {
-                menu = false
-                onChange(form.copy(presetId = null))
-            })
-        }
-    }
+    PresetDropdown(
+        title = R.string.base_vehicle,
+        selected = preset?.name,
+        placeholder = R.string.base_vehicle_choose,
+        options = vehiclePresets.map { it.name },
+        onPick = { i ->
+            val p = vehiclePresets[i]
+            // Keep the wheelbase if this base offers it, else take its longest.
+            val keep = p.variants.find { parseDecimal(form.wheelbaseCm) == it.wheelbaseMm / 10 }
+            onChange(form.withPreset(p, keep ?: p.variants.last()))
+        },
+        onCustom = { onChange(form.copy(presetId = null)) },
+    )
     if (preset != null) {
         val selected = form.matchingVariant(preset)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -211,6 +210,40 @@ private fun BasePicker(form: VehicleForm, onChange: (VehicleForm) -> Unit) {
         Text(stringResource(R.string.base_vehicle_help), style = MaterialTheme.typography.bodySmall)
         if (preset.approximate) {
             Text(stringResource(R.string.base_vehicle_approximate), style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+/** "Pick a known model" dropdown with a last entry for entering values yourself. */
+@Composable
+private fun PresetDropdown(
+    title: Int,
+    selected: String?,
+    placeholder: Int,
+    options: List<String>,
+    onPick: (Int) -> Unit,
+    onCustom: () -> Unit,
+) {
+    var menu by remember { mutableStateOf(false) }
+    Text(stringResource(title), style = MaterialTheme.typography.labelLarge)
+    Box {
+        OutlinedCard(onClick = { menu = true }, modifier = Modifier.fillMaxWidth()) {
+            Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(selected ?: stringResource(placeholder), modifier = Modifier.weight(1f))
+                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+            }
+        }
+        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+            options.forEachIndexed { i, name ->
+                DropdownMenuItem(text = { Text(name) }, onClick = {
+                    menu = false
+                    onPick(i)
+                })
+            }
+            DropdownMenuItem(text = { Text(stringResource(R.string.preset_custom)) }, onClick = {
+                menu = false
+                onCustom()
+            })
         }
     }
 }

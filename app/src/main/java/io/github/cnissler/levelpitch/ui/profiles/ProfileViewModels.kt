@@ -49,7 +49,7 @@ class EquipmentEditViewModel(app: LevelPitchApp, id: String?) : ViewModel() {
     private val existing = id?.let { i -> repo.data.value.equipment.find { it.id == i } }
 
     val isNew: Boolean = existing == null
-    var form by mutableStateOf(existing?.let(EquipmentForm::from) ?: EquipmentForm())
+    var form by mutableStateOf(existing?.let(EquipmentForm::from) ?: EquipmentForm.newDefault())
     var showErrors by mutableStateOf(false)
         private set
 

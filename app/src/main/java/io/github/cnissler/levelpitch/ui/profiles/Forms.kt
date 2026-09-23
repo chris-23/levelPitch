@@ -5,6 +5,8 @@ import io.github.cnissler.levelpitch.leveling.PhoneOrientation
 import io.github.cnissler.levelpitch.profiles.EquipmentProfile
 import io.github.cnissler.levelpitch.profiles.PresetVariant
 import io.github.cnissler.levelpitch.profiles.VehiclePreset
+import io.github.cnissler.levelpitch.profiles.WedgePreset
+import io.github.cnissler.levelpitch.profiles.wedgePresets
 import io.github.cnissler.levelpitch.profiles.vehiclePresets
 import io.github.cnissler.levelpitch.profiles.VehicleProfile
 import io.github.cnissler.levelpitch.profiles.VehicleType
@@ -111,7 +113,16 @@ data class EquipmentForm(
     val name: String = "",
     val stepsCm: List<String> = listOf(""),
     val wedgesOwned: String = "2",
+    /** Wedge model the steps were taken from; only a hint for the editor, not stored. */
+    val presetId: String? = null,
 ) {
+    /** Fills the steps from a wedge model, and the name unless the user typed one. */
+    fun withPreset(preset: WedgePreset) = copy(
+        name = if (name.isBlank() || name == wedgePresets.find { it.id == presetId }?.name) preset.name else name,
+        stepsCm = preset.stepHeightsMm.map { mmToCm(it) },
+        presetId = preset.id,
+    )
+
     private val steps: List<Double>? get() = stepsCm.map { cmToMm(it) ?: return null }
 
     fun errors(): Set<EquipmentField> = buildSet {
@@ -127,6 +138,9 @@ data class EquipmentForm(
     }
 
     companion object {
+        /** New wedges start from the first (most widespread) model. */
+        fun newDefault(): EquipmentForm = EquipmentForm().withPreset(wedgePresets.first())
+
         fun from(p: EquipmentProfile) = EquipmentForm(
             name = p.name,
             stepsCm = p.stepHeightsMm.map { mmToCm(it) },

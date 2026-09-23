@@ -164,6 +164,13 @@ presets are good enough, but the editor asks to compare with the vehicle
 papers because converters sometimes change the chassis. Caravans have no
 common bases, so they get no presets.
 
+The wedge editor likewise offers common stepped wedges with their published
+lift per step: Fiamma Level Up / Berger Multi Level Ramp (4/7/10 cm),
+Milenco Quattro 3 (4/9/13/18 cm), Thule Levelers (4.4/7.8/11.2 cm) and
+Froli Stufenkeil (4.5/7.5/10.5 cm). New wedges start from the first; the
+name follows the model until the user types their own. They are sold in
+pairs, so "2 wedges" stays the default.
+
 ## Data model
 
 ```
