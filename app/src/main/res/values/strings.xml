@@ -1,6 +1,31 @@
 <resources>
     <string name="app_name">LevelPitch</string>
-    <string name="home_intro">Place the phone on your measuring surface, then measure.</string>
+    <string name="home_intro">Lay the phone flat on your measuring surface, aligned with its edge, then measure.</string>
+    <string name="orientation_label">Phone top edge points to</string>
+    <string name="orientation_front">Front</string>
+    <string name="orientation_left">Left</string>
+    <string name="orientation_rear">Rear</string>
+    <string name="orientation_right">Right</string>
     <string name="measure">Measure</string>
+    <string name="hold_still">Hold still…</string>
+    <string name="pitch_value">Pitch %1$+.2f°</string>
+    <string name="roll_value">Roll %1$+.2f°</string>
+    <string name="nose_up">nose up</string>
+    <string name="nose_down">nose down</string>
+    <string name="left_side_up">left side up</string>
+    <string name="right_side_up">right side up</string>
+    <string name="quality">Noise %1$.2f°, drift %2$.2f°, %3$d samples</string>
+    <string name="uncorrected">Uncorrected: pitch %1$+.2f°, roll %2$+.2f°</string>
+    <string name="moved">The phone moved. Keep still and measure again.</string>
+    <string name="not_flat">Lay the phone flat, screen up.</string>
+    <string name="too_few_samples">Too few sensor readings (%1$d). Try again.</string>
+    <string name="no_sensor">This device has no accelerometer.</string>
+    <string name="calibration">Zero calibration</string>
+    <string name="zero_value">Zero: pitch %1$+.2f°, roll %2$+.2f°</string>
+    <string name="zero_none">No zero set for this orientation. Readings are uncorrected.</string>
+    <string name="zero_done">Zero set.</string>
+    <string name="zero_hint">Set zero only while the vehicle is known level, e.g. checked with a spirit level on the chassis.</string>
+    <string name="set_zero">Set zero</string>
+    <string name="clear_zero">Clear zero</string>
     <string name="safety_line">Handbrake and chocks before leaving the vehicle.</string>
 </resources>
