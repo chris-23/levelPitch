@@ -60,6 +60,8 @@ android {
     androidResources {
         // Lists the translated languages for Android 13+'s per-app language settings.
         generateLocaleConfig = true
+        // Only the app's own languages; library translations for others would mix into an English UI.
+        localeFilters += listOf("en", "de")
     }
 }
 
