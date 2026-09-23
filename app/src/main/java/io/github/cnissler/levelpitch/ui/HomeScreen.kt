@@ -16,9 +16,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -41,7 +38,7 @@ import io.github.cnissler.levelpitch.ui.theme.LevelPitchTheme
 
 /** Simple-mode measurement screen; the level loop (F3) builds on it in M3. */
 @Composable
-fun HomeScreen(viewModel: MeasureViewModel = viewModel()) {
+fun HomeScreen(onProfiles: () -> Unit, viewModel: MeasureViewModel = viewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     MeasureScreen(
         state = state,
@@ -49,6 +46,7 @@ fun HomeScreen(viewModel: MeasureViewModel = viewModel()) {
         onMeasure = viewModel::measure,
         onSetZero = viewModel::setZero,
         onClearZero = viewModel::clearZero,
+        onProfiles = onProfiles,
     )
 }
 
@@ -60,10 +58,16 @@ fun MeasureScreen(
     onMeasure: () -> Unit,
     onSetZero: () -> Unit,
     onClearZero: () -> Unit,
+    onProfiles: () -> Unit = {},
 ) {
     val idle = state.running == null && state.sensorAvailable
     Scaffold(
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.app_name)) },
+                actions = { TextButton(onClick = onProfiles) { Text(stringResource(R.string.profiles)) } },
+            )
+        },
     ) { padding ->
         Column(
             modifier = Modifier
@@ -76,16 +80,7 @@ fun MeasureScreen(
             Text(stringResource(R.string.home_intro), style = MaterialTheme.typography.bodyLarge)
 
             Text(stringResource(R.string.orientation_label), style = MaterialTheme.typography.labelLarge)
-            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                PhoneOrientation.entries.forEachIndexed { i, o ->
-                    SegmentedButton(
-                        selected = o == state.orientation,
-                        onClick = { onOrientation(o) },
-                        shape = SegmentedButtonDefaults.itemShape(i, PhoneOrientation.entries.size),
-                        enabled = idle,
-                    ) { Text(stringResource(o.label())) }
-                }
-            }
+            OrientationPicker(state.orientation, idle, onOrientation, Modifier.fillMaxWidth())
 
             Button(onClick = onMeasure, enabled = idle, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.measure))
@@ -186,13 +181,6 @@ private fun CalibrationSection(state: MeasureUiState, idle: Boolean, onSetZero: 
             }
         }
     }
-}
-
-private fun PhoneOrientation.label(): Int = when (this) {
-    PhoneOrientation.TOP_TO_FRONT -> R.string.orientation_front
-    PhoneOrientation.TOP_TO_LEFT -> R.string.orientation_left
-    PhoneOrientation.TOP_TO_REAR -> R.string.orientation_rear
-    PhoneOrientation.TOP_TO_RIGHT -> R.string.orientation_right
 }
 
 @Preview(showBackground = true)

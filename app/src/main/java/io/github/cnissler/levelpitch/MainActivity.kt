@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import io.github.cnissler.levelpitch.ui.HomeScreen
+import io.github.cnissler.levelpitch.ui.LevelPitchNavHost
 import io.github.cnissler.levelpitch.ui.theme.LevelPitchTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LevelPitchTheme {
-                HomeScreen()
+                LevelPitchNavHost()
             }
         }
     }
